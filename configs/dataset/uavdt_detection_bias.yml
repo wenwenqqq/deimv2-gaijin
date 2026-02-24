@@ -1,0 +1,59 @@
+task: detection
+
+evaluator:
+  type: CocoEvaluator
+  iou_types: ['bbox', ]
+
+num_classes: 3
+remap_mscoco_category: False
+
+train_dataloader: 
+  type: DataLoader
+  dataset: 
+    type: CocoDetection
+    img_folder: /mnt/e/Experiment/OpenDataLab___UAVDT/raw/UAV-benchmark-M
+    ann_file: /mnt/e/Experiment/DEIMv2-main/uavdt_train.json
+    return_masks: False
+    category_id_offset: -1  # UAVDT类别ID减1
+    transforms:
+      type: Compose
+      ops: ~
+  shuffle: True
+  num_workers: 4
+  drop_last: True 
+  collate_fn:
+    type: BatchImageCollateFunction
+
+val_dataloader:
+  type: DataLoader
+  dataset: 
+    type: CocoDetection
+    img_folder: /mnt/e/Experiment/OpenDataLab___UAVDT/raw/UAV-benchmark-M
+    ann_file: /mnt/e/Experiment/DEIMv2-main/uavdt_val.json
+    return_masks: False
+    category_id_offset: -1  # UAVDT类别ID减1
+    transforms:
+      type: Compose
+      ops: ~ 
+  shuffle: False
+  num_workers: 4
+  drop_last: False
+  collate_fn:
+    type: BatchImageCollateFunction
+
+test_dataloader:
+  type: DataLoader
+  dataset: 
+    type: CocoDetection
+    img_folder: /mnt/e/Experiment/OpenDataLab___UAVDT/raw/UAV-benchmark-M
+    ann_file: /mnt/e/Experiment/DEIMv2-main/uavdt_test.json
+    return_masks: False
+    category_id_offset: -1  # UAVDT类别ID减1
+    transforms:
+      type: Compose
+      ops: ~ 
+  shuffle: False
+  num_workers: 4
+  drop_last: False
+  collate_fn:
+    type: BatchImageCollateFunction

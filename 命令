@@ -1,0 +1,10 @@
+
+
+
+训练：CUDA_LAUNCH_BLOCKING=1 CUDA_VISIBLE_DEVICES=0 python train.py -c /mnt/e/Experiment/DEIMv2-main/configs/deimv2/deimv2_hgnetv2_n_uavdt.yml --use-amp --seed=0
+
+
+
+
+
+
