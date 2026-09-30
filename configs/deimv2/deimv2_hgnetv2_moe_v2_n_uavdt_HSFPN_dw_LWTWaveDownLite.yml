@@ -1,0 +1,30 @@
+# Independent lightweight Stage3 WaveDown experiment. Original configs unchanged.
+# Keep Stage4 MoE, DCT-HFP_dw, the standard decoder and all training settings.
+__include__: [
+  './deimv2_hgnetv2_moe_v2_n_uavdt_HSFPN_dw.yml'
+]
+
+output_dir: ./outputs/deimv2_hgnetv2_moe_v2_n_uavdt_HSFPN_dw_LWTWaveDownLite-no-moeloss
+
+moe_loss_weight: 0.0
+
+DEIM:
+  backbone: HGNetv2_MoE_v2_WaveDownLite
+
+HGNetv2_MoE_v2_WaveDownLite:
+  name: 'B0'
+  return_idx: [2, 3]
+  freeze_at: -1
+  freeze_norm: False
+  pretrained: False
+  use_lab: True
+  num_experts: 3
+  top_k: 2
+  use_shared_expert: True
+  moe_stages: [3]
+  expert_kernels: [3, 5, 7]
+  expert_act: 'silu'
+  expert_expand_ratio: 1
+  balance_loss_coeff: 1.0
+  z_loss_coeff: 1.0
+  wavedown_stages: [2]

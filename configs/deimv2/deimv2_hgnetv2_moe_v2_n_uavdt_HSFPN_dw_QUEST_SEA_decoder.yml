@@ -1,0 +1,41 @@
+# QUEST + mild SEA: same shared configuration as the QUEST control.
+# Only the decoder and its identity-initialized query gate change.
+__include__: [
+  './deimv2_hgnetv2_moe_v2_n_uavdt_HSFPN_dw.yml'
+]
+
+output_dir: ./outputs/deimv2_hgnetv2_moe_v2_n_uavdt_HSFPN_dw_QUEST_SEA_decoder
+
+# Keep MoE routing/experts but disable the auxiliary loss and its logging.
+moe_loss_weight: 0.0
+
+DEIM:
+  backbone: HGNetv2_MoE_v2
+  encoder: HybridEncoder_HSFPN
+  decoder: DEIMTransformer_QUEST_SEA
+
+DEIMTransformer_QUEST_SEA:
+  feat_channels: [128, 128]
+  feat_strides: [16, 32]
+  hidden_dim: 128
+  num_levels: 2
+  num_points: [6, 6]
+  nhead: 8
+  num_layers: 3
+  eval_idx: -1
+  num_queries: 300
+  num_denoising: 100
+  label_noise_ratio: 0.5
+  box_noise_scale: 1.0
+  reg_max: 32
+  reg_scale: 4
+  layer_scale: 1
+  cross_attn_method: default
+  query_select_method: default
+  dim_feedforward: 512
+  activation: silu
+  mlp_act: silu
+
+  # G = 1 + scale * tanh(Linear(V)), applied before attention head mixing.
+  # Zero-initialized gate: G starts at 1; fixed scale bounds it to [0.9, 1.1].
+  sea_gate_scale: 0.1

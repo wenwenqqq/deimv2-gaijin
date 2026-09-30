@@ -1,0 +1,563 @@
+========================================================================================================================
+Experiment: deimv2_hgnetv2_moe_v2_n_uavdt_HSFPN
+========================================================================================================================
+  --- Top 1 (epoch=151, AP=0.201017) ---
+    AP @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.201017
+    AP @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.345296
+    AP @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.206397
+    AP @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.152713
+    AP @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.289312
+    AP @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.328824
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.150399
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.328685
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.477470
+    AR @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.359850
+    AR @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.629842
+    AR @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.542049
+
+  --- Top 2 (epoch=152, AP=0.201009) ---
+    AP @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.201009
+    AP @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.344337
+    AP @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.206868
+    AP @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.152768
+    AP @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.289622
+    AP @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.328906
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.150401
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.328827
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.477130
+    AR @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.359442
+    AR @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.629746
+    AR @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.539264
+
+  --- Top 3 (epoch=111, AP=0.200761) ---
+    AP @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.200761
+    AP @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.346157
+    AP @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.205727
+    AP @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.152530
+    AP @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.288786
+    AP @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.326352
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.148345
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.330916
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.481505
+    AR @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.363520
+    AR @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.633645
+    AR @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.548605
+
+  >> Top-3 AP summary: #1: 0.201017 (ep 151)  |  #2: 0.201009 (ep 152)  |  #3: 0.200761 (ep 111)
+
+========================================================================================================================
+Experiment: deimv2_hgnetv2_moe_v2_n_uavdt_HSFPN_LWGA
+========================================================================================================================
+  --- Top 1 (epoch=155, AP=0.195035) ---
+    AP @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.195035
+    AP @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.328387
+    AP @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.203244
+    AP @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.145648
+    AP @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.292507
+    AP @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.303460
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.150472
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.343436
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.490179
+    AR @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.354359
+    AR @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.660479
+    AR @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.546333
+
+  --- Top 2 (epoch=96, AP=0.195004) ---
+    AP @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.195004
+    AP @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.329936
+    AP @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.201699
+    AP @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.146419
+    AP @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.291591
+    AP @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.298791
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.148933
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.341559
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.490112
+    AR @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.354642
+    AR @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.659455
+    AR @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.546908
+
+  --- Top 3 (epoch=158, AP=0.194997) ---
+    AP @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.194997
+    AP @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.328309
+    AP @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.203203
+    AP @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.145661
+    AP @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.292833
+    AP @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.301623
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.150142
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.343127
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.490388
+    AR @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.354433
+    AR @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.660822
+    AR @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.548014
+
+  >> Top-3 AP summary: #1: 0.195035 (ep 155)  |  #2: 0.195004 (ep 96)  |  #3: 0.194997 (ep 158)
+
+========================================================================================================================
+Experiment: deimv2_hgnetv2_moe_v2_n_uavdt_HSFPN_LWGA_dw
+========================================================================================================================
+  --- Top 1 (epoch=94, AP=0.208445) ---
+    AP @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.208445
+    AP @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.357351
+    AP @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.220333
+    AP @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.145523
+    AP @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.319946
+    AP @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.339285
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.160906
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.342210
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.478596
+    AR @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.342319
+    AR @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.643618
+    AR @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.640879
+
+  --- Top 2 (epoch=158, AP=0.208435) ---
+    AP @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.208435
+    AP @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.356661
+    AP @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.220647
+    AP @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.145553
+    AP @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.319502
+    AP @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.341190
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.160439
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.342481
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.479292
+    AR @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.343699
+    AR @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.643838
+    AR @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.640648
+
+  --- Top 3 (epoch=95, AP=0.208367) ---
+    AP @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.208367
+    AP @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.356948
+    AP @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.220458
+    AP @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.145695
+    AP @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.319779
+    AP @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.336404
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.160869
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.341638
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.479183
+    AR @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.343663
+    AR @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.643728
+    AR @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.639923
+
+  >> Top-3 AP summary: #1: 0.208445 (ep 94)  |  #2: 0.208435 (ep 158)  |  #3: 0.208367 (ep 95)
+
+========================================================================================================================
+Experiment: deimv2_hgnetv2_moe_v2_n_uavdt_HSFPN_dw
+========================================================================================================================
+  --- Top 1 (epoch=94, AP=0.215415) ---
+    AP @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.215415
+    AP @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.368545
+    AP @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.226790
+    AP @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.146689
+    AP @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.327699
+    AP @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.266873
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.158370
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.337091
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.479869
+    AR @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.353635
+    AR @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.638663
+    AR @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.523008
+
+  --- Top 2 (epoch=93, AP=0.215086) ---
+    AP @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.215086
+    AP @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.368352
+    AP @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.226418
+    AP @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.146272
+    AP @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.327608
+    AP @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.266729
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.157800
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.336101
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.479136
+    AR @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.352641
+    AR @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.638079
+    AR @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.521645
+
+  --- Top 3 (epoch=95, AP=0.215045) ---
+    AP @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.215045
+    AP @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.368118
+    AP @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.226990
+    AP @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.147147
+    AP @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.327428
+    AP @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.269507
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.158979
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.337744
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.480736
+    AR @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.355244
+    AR @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.638941
+    AR @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.525038
+
+  >> Top-3 AP summary: #1: 0.215415 (ep 94)  |  #2: 0.215086 (ep 93)  |  #3: 0.215045 (ep 95)
+
+========================================================================================================================
+Experiment: deimv2_hgnetv2_moe_v2_n_uavdt_LWGA
+========================================================================================================================
+  --- Top 1 (epoch=97, AP=0.207089) ---
+    AP @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.207089
+    AP @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.347556
+    AP @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.221207
+    AP @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.153369
+    AP @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.305542
+    AP @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.302711
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.161955
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.339773
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.484229
+    AR @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.361633
+    AR @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.639744
+    AR @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.528991
+
+  --- Top 2 (epoch=98, AP=0.206873) ---
+    AP @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.206873
+    AP @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.346617
+    AP @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.221185
+    AP @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.153127
+    AP @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.304771
+    AP @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.303956
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.162273
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.338506
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.482983
+    AR @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.361234
+    AR @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.638127
+    AR @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.528068
+
+  --- Top 3 (epoch=99, AP=0.206265) ---
+    AP @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.206265
+    AP @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.345456
+    AP @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.220789
+    AP @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.151921
+    AP @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.304384
+    AP @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.305844
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.162173
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.336918
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.481274
+    AR @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.361200
+    AR @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.635208
+    AR @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.524823
+
+  >> Top-3 AP summary: #1: 0.207089 (ep 97)  |  #2: 0.206873 (ep 98)  |  #3: 0.206265 (ep 99)
+
+========================================================================================================================
+Experiment: deimv2_hgnetv2_moe_v2_n_uavdt_real
+========================================================================================================================
+  --- Top 1 (epoch=124, AP=0.197734) ---
+    AP @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.197734
+    AP @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.333976
+    AP @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.207061
+    AP @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.132752
+    AP @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.300808
+    AP @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.357699
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.148287
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.340777
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.469069
+    AR @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.346595
+    AR @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.626671
+    AR @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.601430
+
+  --- Top 2 (epoch=123, AP=0.197587) ---
+    AP @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.197587
+    AP @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.333876
+    AP @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.206928
+    AP @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.132098
+    AP @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.300565
+    AP @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.355672
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.148224
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.340657
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.469345
+    AR @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.346312
+    AR @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.627551
+    AR @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.602071
+
+  --- Top 3 (epoch=114, AP=0.197577) ---
+    AP @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.197577
+    AP @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.334599
+    AP @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.206158
+    AP @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.132897
+    AP @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.300458
+    AP @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.343581
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.146982
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.337106
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.472683
+    AR @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.349293
+    AR @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.630433
+    AR @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.609694
+
+  >> Top-3 AP summary: #1: 0.197734 (ep 124)  |  #2: 0.197587 (ep 123)  |  #3: 0.197577 (ep 114)
+
+========================================================================================================================
+Experiment: deimv2_hgnetv2_n_uavdt_HSFPN_LWGA
+========================================================================================================================
+  --- Top 1 (epoch=154, AP=0.201008) ---
+    AP @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.201008
+    AP @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.333918
+    AP @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.215439
+    AP @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.135400
+    AP @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.311234
+    AP @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.344208
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.150735
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.321712
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.466369
+    AR @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.352016
+    AR @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.622948
+    AR @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.492964
+
+  --- Top 2 (epoch=155, AP=0.200963) ---
+    AP @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.200963
+    AP @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.332942
+    AP @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.215972
+    AP @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.135440
+    AP @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.311620
+    AP @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.344449
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.150936
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.321418
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.465571
+    AR @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.350899
+    AR @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.622669
+    AR @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.491383
+
+  --- Top 3 (epoch=153, AP=0.200925) ---
+    AP @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.200925
+    AP @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.333946
+    AP @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.214868
+    AP @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.135920
+    AP @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.310788
+    AP @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.346163
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.151080
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.321461
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.467311
+    AR @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.352651
+    AR @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.623915
+    AR @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.493744
+
+  >> Top-3 AP summary: #1: 0.201008 (ep 154)  |  #2: 0.200963 (ep 155)  |  #3: 0.200925 (ep 153)
+
+========================================================================================================================
+Experiment: deimv2_hgnetv2_n_uavdt_HSFPN_dw_LWGA
+========================================================================================================================
+  --- Top 1 (epoch=96, AP=0.193027) ---
+    AP @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.193027
+    AP @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.338768
+    AP @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.195412
+    AP @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.149040
+    AP @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.280095
+    AP @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.251372
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.150322
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.334267
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.490359
+    AR @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.381753
+    AR @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.628760
+    AR @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.556358
+
+  --- Top 2 (epoch=91, AP=0.192028) ---
+    AP @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.192028
+    AP @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.338886
+    AP @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.193591
+    AP @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.148122
+    AP @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.280192
+    AP @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.242826
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.151428
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.338624
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.490053
+    AR @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.380124
+    AR @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.629771
+    AR @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.555508
+
+  --- Top 3 (epoch=95, AP=0.191791) ---
+    AP @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.191791
+    AP @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.337279
+    AP @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.193784
+    AP @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.148715
+    AP @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.278661
+    AP @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.249918
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.150518
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.334854
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.490386
+    AR @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.381808
+    AR @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.628738
+    AR @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.555740
+
+  >> Top-3 AP summary: #1: 0.193027 (ep 96)  |  #2: 0.192028 (ep 91)  |  #3: 0.191791 (ep 95)
+
+========================================================================================================================
+Experiment: deimv2_hgnetv2_n_uavdt_HSFPN_dw_pw_real_all
+========================================================================================================================
+  --- Top 1 (epoch=152, AP=0.205723) ---
+    AP @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.205723
+    AP @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.353526
+    AP @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.217578
+    AP @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.149951
+    AP @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.307635
+    AP @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.320614
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.156480
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.334459
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.475569
+    AR @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.348463
+    AR @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.633146
+    AR @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.560243
+
+  --- Top 2 (epoch=151, AP=0.205536) ---
+    AP @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.205536
+    AP @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.354678
+    AP @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.216564
+    AP @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.150384
+    AP @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.307854
+    AP @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.314393
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.156657
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.334062
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.475025
+    AR @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.348551
+    AR @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.631642
+    AR @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.560382
+
+  --- Top 3 (epoch=150, AP=0.205510) ---
+    AP @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.205510
+    AP @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.355185
+    AP @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.215691
+    AP @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.150566
+    AP @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.307419
+    AP @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.312345
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.156296
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.333865
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.473940
+    AR @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.347599
+    AR @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.630237
+    AR @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.557937
+
+  >> Top-3 AP summary: #1: 0.205723 (ep 152)  |  #2: 0.205536 (ep 151)  |  #3: 0.205510 (ep 150)
+
+========================================================================================================================
+Experiment: deimv2_hgnetv2_n_uavdt_HSFPN_dw_real
+========================================================================================================================
+  --- Top 1 (epoch=153, AP=0.204572) ---
+    AP @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.204572
+    AP @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.356108
+    AP @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.210132
+    AP @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.151778
+    AP @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.299994
+    AP @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.268684
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.156794
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.332334
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.469201
+    AR @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.357684
+    AR @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.611003
+    AR @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.562443
+
+  --- Top 2 (epoch=157, AP=0.204300) ---
+    AP @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.204300
+    AP @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.355964
+    AP @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.209906
+    AP @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.150832
+    AP @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.300148
+    AP @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.267788
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.155996
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.331127
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.468189
+    AR @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.356667
+    AR @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.609867
+    AR @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.561494
+
+  --- Top 3 (epoch=152, AP=0.204285) ---
+    AP @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.204285
+    AP @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.356382
+    AP @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.209762
+    AP @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.151253
+    AP @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.300187
+    AP @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.266347
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.156671
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.331312
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.467879
+    AR @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.356739
+    AR @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.608980
+    AR @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.564356
+
+  >> Top-3 AP summary: #1: 0.204572 (ep 153)  |  #2: 0.204300 (ep 157)  |  #3: 0.204285 (ep 152)
+
+========================================================================================================================
+Experiment: deimv2_hgnetv2_n_uavdt_LWGA
+========================================================================================================================
+  --- Top 1 (epoch=158, AP=0.212753) ---
+    AP @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.212753
+    AP @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.350907
+    AP @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.228668
+    AP @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.143752
+    AP @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.319846
+    AP @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.313483
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.155814
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.328334
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.475133
+    AR @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.370505
+    AR @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.617572
+    AR @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.494179
+
+  --- Top 2 (epoch=157, AP=0.212751) ---
+    AP @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.212751
+    AP @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.350983
+    AP @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.228316
+    AP @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.144060
+    AP @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.319912
+    AP @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.313536
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.155827
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.328849
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.474944
+    AR @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.369381
+    AR @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.618155
+    AR @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.494746
+
+  --- Top 3 (epoch=159, AP=0.212577) ---
+    AP @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.212577
+    AP @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.350545
+    AP @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.228639
+    AP @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.143550
+    AP @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.320207
+    AP @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.311250
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.155910
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.327926
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.474828
+    AR @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.370684
+    AR @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.616863
+    AR @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.494096
+
+  >> Top-3 AP summary: #1: 0.212753 (ep 158)  |  #2: 0.212751 (ep 157)  |  #3: 0.212577 (ep 159)
+
+========================================================================================================================
+Experiment: deimv2_hgnetv2_n_uavdt_PFGA_real_all
+========================================================================================================================
+  --- Top 1 (epoch=110, AP=0.201346) ---
+    AP @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.201346
+    AP @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.348498
+    AP @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.207978
+    AP @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.147779
+    AP @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.293861
+    AP @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.322672
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.137500
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.319045
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.458065
+    AR @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.346175
+    AR @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.603722
+    AR @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.566947
+
+  --- Top 2 (epoch=109, AP=0.201173) ---
+    AP @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.201173
+    AP @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.348379
+    AP @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.207899
+    AP @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.148355
+    AP @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.293653
+    AP @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.319228
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.138081
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.319518
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.458155
+    AR @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.346102
+    AR @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.603829
+    AR @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.566995
+
+  --- Top 3 (epoch=108, AP=0.201063) ---
+    AP @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.201063
+    AP @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.348374
+    AP @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.207541
+    AP @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.149070
+    AP @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.293289
+    AP @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.316939
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.138354
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.319933
+    AR @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.457690
+    AR @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.345896
+    AR @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.603062
+    AR @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.564252
+
+  >> Top-3 AP summary: #1: 0.201346 (ep 110)  |  #2: 0.201173 (ep 109)  |  #3: 0.201063 (ep 108)

@@ -1,0 +1,31 @@
+# LWTformer ablation 2: only replace the stride-16 DCT-HFP stack with a
+# learnable Haar DWT and directional LL/LH/HL/HH subband gate.
+__include__: [
+  './deimv2_hgnetv2_moe_v2_n_uavdt_HSFPN_dw.yml'
+]
+
+output_dir: ./outputs/deimv2_hgnetv2_moe_v2_n_uavdt_HSFPN_dw_LWTHFP
+
+DEIM:
+  backbone: HGNetv2_MoE_v2
+  encoder: HybridEncoder_LWTHFP
+  decoder: DEIMTransformer
+
+HybridEncoder_LWTHFP:
+  in_channels: [512, 1024]
+  feat_strides: [16, 32]
+  hidden_dim: 128
+  use_encoder_idx: [0]
+  num_encoder_layers: 1
+  dim_feedforward: 512
+  expansion: 0.34
+  depth_mult: 0.5
+  act: 'silu'
+  version: 'dfine'
+  csp_type: 'csp2'
+  fuse_op: 'sum'
+  hsfpn_depth: 1
+  hsfpn_residual: True
+  hsfpn_out_mode: 'dw'
+  lwt_alpha_init: 0.1
+  lwt_directional_init: True

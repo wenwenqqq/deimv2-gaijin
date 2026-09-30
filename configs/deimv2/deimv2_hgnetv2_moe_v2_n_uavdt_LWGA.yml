@@ -1,0 +1,187 @@
+# ==============================================================================
+# DEIMv2 + block-level MoE v2 HGNetv2 B0 + LWGA decoder on UAVDT
+#   Combines two single-component improvements into one experiment:
+#     * backbone : HGNetv2_MoE_v2 (block-level ES-MoE v2, YOLO-Master style;
+#                                    heterogeneous multi-kernel experts at stage4)
+#     * decoder  : DEIMTransformer_LWGA (LWGA replaces decoder query
+#                                        self-attention; cross-attention stays
+#                                        MSDeformableAttention)
+#
+#   The encoder stays the vanilla HybridEncoder (no HSFPN) to isolate the
+#   MoE v2 + LWGA contribution.
+#
+#   This config is the union of two already-validated single-component runs:
+#     - configs/deimv2/deimv2_hgnetv2_moe_v2_n_uavdt.yml   (MoE v2 backbone)
+#     - configs/deimv2/deimv2_hgnetv2_n_uavdt_LWGA.yml       (LWGA decoder)
+#
+#   Backbone side is taken verbatim from the MoE v2 run (MoE optimizer
+#   param groups, sync_bn=False for conditional-expert BN, auxiliary MoE loss).
+#   Decoder side is taken verbatim from the LWGA run (stage-3 LWGA, kernel 11)
+#   plus the PaQ-DETR one-to-many auxiliary loss (criterion-level,
+#   decoder-agnostic).
+#
+# Training Command (from scratch; single node, 2 GPUs):
+#   CUDA_VISIBLE_DEVICES=0,1 torchrun --nproc_per_node=2 --master_port=29500 \
+#       train.py \
+#       -c /workspace/cpfs-data/deimv2/configs/deimv2/deimv2_hgnetv2_moe_v2_n_uavdt_LWGA.yml \
+#       --use-amp --seed=0
+# ==============================================================================
+__include__: [
+  '../dataset/uavdt_detection.yml',
+  '../runtime.yml',
+  '../base/dataloader.yml',
+  '../base/optimizer.yml',
+  '../base/deimv2_moe_v2.yml'
+]
+
+output_dir: ./outputs/deimv2_hgnetv2_moe_v2_n_uavdt_LWGA_nomeoloss
+
+# MoE expert branches use conditional BN; SyncBN can hang when different ranks
+# activate different experts.
+sync_bn: False
+
+moe_loss_weight: 0.0
+
+DEIM:
+  backbone: HGNetv2_MoE_v2
+  encoder: HybridEncoder
+  decoder: DEIMTransformer_LWGA
+
+# ==============================================================================
+# Block-level MoE v2 Backbone (same UAVDT setting as the standalone MoE v2 run)
+#   Only stage4 (stride-32, 20x20) uses whole-block MoE for the lightweight start.
+# ==============================================================================
+HGNetv2_MoE_v2:
+  name: 'B0'
+  return_idx: [2, 3]
+  freeze_at: -1
+  freeze_norm: False
+  pretrained: False
+  use_lab: True
+  num_experts: 3
+  top_k: 2
+  use_shared_expert: True
+  moe_stages: [3]            # only stage4 (stride-32, 20x20): cheapest, +~real MoE
+  expert_kernels: [3, 5, 7]  # heterogeneous multi-kernel experts
+  expert_act: 'silu'         # YOLO-Master style (decoupled from backbone relu)
+  expert_expand_ratio: 1     # hidden = mid_channels (lightweight)
+  balance_loss_coeff: 1.0
+  z_loss_coeff: 1.0
+
+HybridEncoder:
+  in_channels: [512, 1024]
+  feat_strides: [16, 32]
+
+  # intra
+  hidden_dim: 128
+  use_encoder_idx: [1]
+  dim_feedforward: 512
+
+  # cross
+  expansion: 0.34
+  depth_mult: 0.5
+
+  version: 'dfine'
+
+DEIMTransformer_LWGA:
+  feat_channels: [128, 128]
+  feat_strides: [16, 32]
+  hidden_dim: 128
+  num_levels: 2
+  num_points: [6, 6]
+
+  num_layers: 3
+  eval_idx: -1
+
+  # FFN
+  dim_feedforward: 512
+
+  # LWGA token self-attention
+  lwga_stage: 3
+  lwga_att_kernel: 11
+  lwga_mlp_ratio: 2.0
+  lwga_drop_path: 0.0
+  lwga_act: 'gelu'
+  lwga_norm_type: 'GN'
+  lwga_min_hw: 2
+  lwga_sort_by_ref: True
+  lwga_isolate_dn: True
+
+# ==============================================================================
+# Optimizer with MoE parameter groups
+#   v2 MoEBlock params match the same keywords (expert/router/shared_expert);
+#   MoEBlock.norm (BN) is caught by the backbone norm/bn group (wd=0).
+# ==============================================================================
+optimizer:
+  type: AdamW
+  params:
+    # Backbone norm/bn params
+    -
+      params: '^(?=.*backbone)(?=.*norm|bn).*$'
+      lr: 0.0004
+      weight_decay: 0.
+    # Backbone MoE params (expert, router, shared_expert) - exclude norm/bn
+    -
+      params: '^(?=.*backbone)(?=.*(?:expert|router|shared_expert|gate))(?!.*norm|bn).*$'
+      lr: 0.0004
+    # Backbone other params (exclude norm/bn and MoE params)
+    -
+      params: '^(?=.*backbone)(?!.*norm|bn)(?!.*expert)(?!.*router)(?!.*shared_expert)(?!.*gate).*$'
+      lr: 0.0004
+    # Encoder/Decoder norm/bn/bias params
+    -
+      params: '^(?=.*(?:encoder|decoder))(?=.*(?:norm|bn|bias)).*$'
+      weight_decay: 0.
+
+  lr: 0.0008
+  betas: [0.9, 0.999]
+  weight_decay: 0.0001
+
+# Training Schedule (for UAVDT)
+epoches: 160
+
+flat_epoch: 7800
+no_aug_epoch: 12
+lr_gamma: 1.0
+
+## MoE Loss Weight
+# moe_loss_weight: 0.01
+
+## DataAug
+train_dataloader:
+  dataset:
+    transforms:
+      policy:
+        epoch: [4, 78, 148]
+
+  collate_fn:
+    ema_restart_decay: 0.9999
+    base_size_repeat: ~
+    mixup_epochs: [4, 78]
+    stop_epoch: 148
+    copyblend_prob: 0.4
+    copyblend_epochs: [4, 78]
+    area_threshold: 100
+    num_objects: 3
+    with_expand: True
+    expand_ratios: [0.1, 0.25]
+
+DEIMCriterion:
+  weight_dict: {loss_mal: 1, loss_bbox: 5, loss_giou: 2, loss_fgl: 0.15, loss_ddf: 1.5,
+                loss_paq_vfl: 1, loss_paq_bbox: 5, loss_paq_giou: 2}
+  # PaQ-DETR quality-aware one-to-many auxiliary branch (ablation toggle).
+  # Off by default in code; set paq_enable: True to turn on. Final decoder layer
+  # always stays one-to-one; this adds an adaptive one-to-many loss at the
+  # intermediate (aux) decoder layers only.
+  paq_enable: True
+  paq_gamma: 0.4          # s = IoU - gamma * cls_conf   (PaQ Eq. 6)
+  paq_k: 4                # nominal top-k for adaptive positive count (Eq. 7)
+  paq_l: 1                # min positives per GT
+  paq_iou_thr: 0.0        # only consider queries with IoU > thr as candidates
+  paq_layers: ~           # None = all intermediate aux layers; or list e.g. [0, 1]
+  paq_start_epoch: 4      # align with mosaic/mixup start
+  matcher:
+    # new matcher
+    change_matcher: True
+    iou_order_alpha: 4.0
+    matcher_change_epoch: 136

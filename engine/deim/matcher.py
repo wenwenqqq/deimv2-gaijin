@@ -149,3 +149,75 @@ class HungarianMatcher(nn.Module):
                         torch.cat([indices_list[i][j][1] for i in range(k)], dim=0)) for j in range(len(sizes))]
         # C.copy_(C_original)
         return indices_list
+
+    @torch.no_grad()
+    def quality_aware_one2many(self, outputs, targets, gamma=0.4, k=4, l=1, iou_thr=0.0):
+        """Quality-aware adaptive one-to-many assignment (PaQ-DETR, Eq. 6-7).
+
+        Quality score per (query i, GT j):  s_{i,j} = IoU(b_i, g_j) - gamma * c_{i,j}
+        where c_{i,j} is the predicted probability of GT j's class for query i.
+        Adaptive positive count per GT:  k_j = max(ceil(sum of top-k s_{.,j}), l).
+        Positives of GT j = its top-k_j queries ranked by s (NOT Hungarian cost).
+
+        Cross-GT conflicts (a query picked by several GTs) are resolved by
+        assigning the query to the GT with the highest s, so each query maps to
+        at most one GT -- this keeps the assignment compatible with the shared
+        target-class tensor consumed by loss_labels_vfl / loss_boxes.
+
+        Returns {'indices': [(src_idx, tgt_idx), ...]} per batch image, same
+        format as forward(), but one-to-many (a GT may appear in many pairs).
+        Candidates are restricted to queries with IoU > iou_thr to avoid pulling
+        in zero-overlap queries as garbage positives.
+        """
+        bs = outputs["pred_logits"].shape[0]
+        out_prob = F.sigmoid(outputs["pred_logits"])      # [bs, Q, C]
+        out_bbox = outputs["pred_boxes"]                  # [bs, Q, 4] cxcywh (normalized)
+
+        k = max(1, int(k))
+        l = max(1, int(l))
+        indices = []
+        for b in range(bs):
+            glabels = targets[b]["labels"]                # [G]
+            gboxes = targets[b]["boxes"]                  # [G, 4]
+            G = glabels.shape[0]
+            if G == 0:
+                empty = torch.zeros(0, dtype=torch.int64, device=out_bbox.device)
+                indices.append((empty, empty))
+                continue
+
+            pred_boxes_b = out_bbox[b]                    # [Q, 4]
+            prob_b = out_prob[b]                          # [Q, C]
+            iou, _ = box_iou(box_cxcywh_to_xyxy(pred_boxes_b), box_cxcywh_to_xyxy(gboxes))  # [Q, G]
+            conf = prob_b[:, glabels]                     # [Q, G]  prob of each GT's class
+            s = iou - gamma * conf                        # [Q, G]  higher = better
+
+            Q = pred_boxes_b.shape[0]
+            best_s = pred_boxes_b.new_full((Q,), -1e9)
+            best_gt = torch.full((Q,), -1, dtype=torch.int64, device=pred_boxes_b.device)
+            for j in range(G):
+                iou_j = iou[:, j]
+                cand = torch.nonzero(iou_j > iou_thr, as_tuple=False).squeeze(-1)
+                nc = cand.numel()
+                if nc == 0:
+                    continue
+                s_cand = s[cand, j]                       # [nc]
+                kk = min(k, nc)
+                # adaptive positive count: ceil(sum of top-k quality scores), floored at l
+                sum_topk = s_cand.topk(kk, sorted=False)[0].sum()
+                kj = max(int(torch.ceil(sum_topk).item()), l)
+                kj = min(kj, nc)
+                sel = s_cand.topk(kj, sorted=False)[1]    # indices into cand
+                q_idx = cand[sel]                         # [kj] query indices
+                sq = s[q_idx, j]
+                improve = sq > best_s[q_idx]
+                q_imp = q_idx[improve]
+                if q_imp.numel() > 0:
+                    best_s[q_imp] = sq[improve]
+                    best_gt[q_imp] = j
+
+            valid = best_gt >= 0
+            src_idx = torch.nonzero(valid, as_tuple=False).squeeze(-1)
+            tgt_idx = best_gt[valid]
+            indices.append((src_idx, tgt_idx))
+
+        return {'indices': indices}

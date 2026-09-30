@@ -1,0 +1,139 @@
+# ==============================================================================
+# DEIMv2 + block-level MoE v2 HGNetv2 B0 on UAVDT
+#   Based on deimv2_hgnetv2_moe_n_uavdt_singel.yml; include swapped to
+#   base/deimv2_moe_v2.yml. Only stage4 uses whole-block MoE (lightweight start);
+#   experts are SiLU, heterogeneous multi-kernel [3,5,7], top_k=2 (YOLO-Master
+#   style).
+#
+# Training Command:
+#   CUDA_VISIBLE_DEVICES=0 python train.py \
+#       -c /workspace/cpfs-data/deimv2/configs/deimv2/deimv2_hgnetv2_moe_v2_n_uavdt.yml \
+#       --use-amp --seed=0
+# ==============================================================================
+__include__: [
+  '../dataset/uavdt_detection.yml',
+  '../runtime.yml',
+  '../base/dataloader.yml',
+  '../base/optimizer.yml',
+  '../base/deimv2_moe_v2.yml'
+]
+
+output_dir: ./outputs/deimv2_hgnetv2_moe_v2_n_uavdt_real
+
+sync_bn: False  # MoE expert 内有条件执行的 BN，SyncBN 会导致 NCCL 死锁
+
+# ==============================================================================
+# Override block-level MoE v2 Backbone (UAVDT specific)
+# ==============================================================================
+HGNetv2_MoE_v2:
+  name: 'B0'
+  return_idx: [2, 3]
+  freeze_at: -1
+  freeze_norm: False
+  pretrained: False
+  use_lab: True
+  # block-level MoE v2 (YOLO-Master style) -- only stage4 for the lightweight start
+  num_experts: 3
+  top_k: 2
+  use_shared_expert: True
+  moe_stages: [3]            # only stage4 (stride-32, 20x20): cheapest, +~real MoE
+  expert_kernels: [3, 5, 7]  # heterogeneous multi-kernel experts
+  expert_act: 'silu'         # YOLO-Master style (decoupled from backbone relu)
+  expert_expand_ratio: 1     # hidden = mid_channels (lightweight)
+  balance_loss_coeff: 1.0
+  z_loss_coeff: 1.0
+
+HybridEncoder:
+  in_channels: [512, 1024]
+  feat_strides: [16, 32]
+
+  # intra
+  hidden_dim: 128
+  use_encoder_idx: [1]
+  dim_feedforward: 512
+
+  # cross
+  expansion: 0.34
+  depth_mult: 0.5
+
+  version: 'dfine'
+
+DEIMTransformer:
+  feat_channels: [128, 128]
+  feat_strides: [16, 32]
+  hidden_dim: 128
+  num_levels: 2
+  num_points: [6, 6]
+
+  num_layers: 3
+  eval_idx: -1
+
+  # FFN
+  dim_feedforward: 512
+
+# ==============================================================================
+# Optimizer with MoE parameter groups
+#   v2 MoEBlock params match the same keywords (expert/router/shared_expert);
+#   MoEBlock.norm (BN) is caught by the backbone norm/bn group (wd=0).
+# ==============================================================================
+optimizer:
+  type: AdamW
+  params:
+    # Backbone norm/bn params
+    -
+      params: '^(?=.*backbone)(?=.*norm|bn).*$'
+      lr: 0.0004
+      weight_decay: 0.
+    # Backbone MoE params (expert, router, shared_expert) - exclude norm/bn
+    -
+      params: '^(?=.*backbone)(?=.*(?:expert|router|shared_expert|gate))(?!.*norm|bn).*$'
+      lr: 0.0004
+    # Backbone other params (exclude norm/bn and MoE params)
+    -
+      params: '^(?=.*backbone)(?!.*norm|bn)(?!.*expert)(?!.*router)(?!.*shared_expert)(?!.*gate).*$'
+      lr: 0.0004
+    # Encoder/Decoder norm/bn/bias params
+    -
+      params: '^(?=.*(?:encoder|decoder))(?=.*(?:norm|bn|bias)).*$'
+      weight_decay: 0.
+
+  lr: 0.0008
+  betas: [0.9, 0.999]
+  weight_decay: 0.0001
+
+# ==============================================================================
+# Training Schedule (for UAVDT)
+# ==============================================================================
+epoches: 160
+
+flat_epoch: 7800
+no_aug_epoch: 12
+lr_gamma: 1.0
+
+## MoE Loss Weight
+moe_loss_weight: 0.01
+
+## DataAug
+train_dataloader:
+  dataset:
+    transforms:
+      policy:
+        epoch: [4, 78, 148]
+
+  collate_fn:
+    ema_restart_decay: 0.9999
+    base_size_repeat: ~
+    mixup_epochs: [4, 78]
+    stop_epoch: 148
+    copyblend_prob: 0.4
+    copyblend_epochs: [4, 78]
+    area_threshold: 100
+    num_objects: 3
+    with_expand: True
+    expand_ratios: [0.1, 0.25]
+
+DEIMCriterion:
+  matcher:
+    change_matcher: True
+    iou_order_alpha: 4.0
+    matcher_change_epoch: 136

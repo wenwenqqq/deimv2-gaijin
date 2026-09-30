@@ -1,0 +1,171 @@
+# ==============================================================================
+# DEIMv2 with block-level ES-MoE v2 Backbone (self-contained, YOLO-Master style)
+# ==============================================================================
+# v2 replaces the ENTIRE HG_Block (not just its SE attention) in moe_stages with
+# a MoEBlock: heterogeneous (multi-kernel) in->out experts + zero-cost router +
+# shared expert. Experts use SiLU (YOLO-Master style). Faithful to ES-MoE
+# (arXiv:2522.23273, CVPR 2026). Non-MoE stages keep the original HG_Block (SE).
+# ==============================================================================
+
+task: detection
+
+model: DEIM
+criterion: DEIMCriterion
+postprocessor: PostProcessor
+
+use_focal_loss: True
+eval_spatial_size: [640, 640] # h w
+checkpoint_freq: 5    # save freq
+
+DEIM:
+  backbone: HGNetv2_MoE_v2
+  encoder: HybridEncoder
+  decoder: DEIMTransformer
+
+# ==============================================================================
+# Block-level MoE v2 HGNetv2 Backbone
+# ==============================================================================
+HGNetv2_MoE_v2:
+  name: 'B0'
+  return_idx: [2, 3]
+  freeze_at: -1         # 0 default
+  freeze_stem_only: True
+  freeze_norm: False    # True default
+  pretrained: False     # 从头训练，不使用预训练权重
+  use_lab: True
+  local_model_dir: ./weight/hgnetv2/
+  # ------------------------------------------------------------------
+  # block-level MoE v2 parameters (YOLO-Master style)
+  # ------------------------------------------------------------------
+  num_experts: 3              # 异构多核专家数
+  top_k: 2                    # 每样本激活专家数
+  use_shared_expert: True     # 共享专家（恒开，稳训练）
+  moe_stages: [2, 3]          # 应用整块 MoE 的 stage（顶层 UAVDT 配置会覆写为 [3]）
+  expert_kernels: [3, 5, 7]   # 异构多核（专家间感受野专门化）
+  expert_act: 'silu'          # 专家激活（YOLO-Master 风格，与 backbone 的 relu 解耦）
+  expert_expand_ratio: 1      # 专家 hidden = mid_channels（轻量）
+  balance_loss_coeff: 1.0     # 负载均衡损失系数
+  z_loss_coeff: 1.0           # Z-loss（路由稳定性）
+
+HybridEncoder:
+  in_channels: [512, 1024]
+  feat_strides: [16, 32]
+
+  # intra
+  hidden_dim: 128
+  use_encoder_idx: [1]
+  num_encoder_layers: 1
+  nhead: 8
+  dim_feedforward: 512
+  dropout: 0.
+  enc_act: 'gelu'
+
+  # cross
+  expansion: 0.34
+  depth_mult: 0.5
+  act: 'silu'
+
+  # New
+  version: dfine
+  csp_type: csp2
+  fuse_op: sum
+
+DEIMTransformer:
+  feat_channels: [128, 128]
+  feat_strides: [16, 32]
+  hidden_dim: 128
+  num_levels: 2
+
+  num_layers: 3
+  eval_idx: -1
+  num_queries: 300
+
+  num_denoising: 100
+  label_noise_ratio: 0.5
+  box_noise_scale: 1.0
+
+  reg_max: 32
+  reg_scale: 4
+  layer_scale: 1
+
+  num_points: [6, 6]
+  cross_attn_method: default
+  query_select_method: default
+
+  # Act
+  activation: silu
+  mlp_act: silu
+
+  # FFN
+  dim_feedforward: 512
+
+PostProcessor:
+  num_top_queries: 300
+
+
+## MoE Loss Weight
+moe_loss_weight: 0.01  # Weight for MoE auxiliary loss
+
+## DEIM LR-Scheduler
+epoches: 72
+lrsheduler: flatcosine
+lr_gamma: 0.5
+warmup_iter: 2000
+flat_epoch: 36    # 4 + epoch // 2
+no_aug_epoch: 12
+
+## Dense O2O: Mosaic + Mixup + CopyBlend
+train_dataloader:
+  dataset:
+    transforms:
+      ops:
+        - {type: Mosaic, output_size: 320, rotation_range: 10, translation_range: [0.1, 0.1], scaling_range: [0.5, 1.5],
+           probability: 1.0, fill_value: 0, use_cache: True, max_cached_images: 50, random_pop: True}
+        - {type: RandomPhotometricDistort, p: 0.5}
+        - {type: RandomZoomOut, fill: 0}
+        - {type: RandomIoUCrop, p: 0.8}
+        - {type: SanitizeBoundingBoxes, min_size: 1}
+        - {type: RandomHorizontalFlip}
+        - {type: Resize, size: [640, 640], }
+        - {type: SanitizeBoundingBoxes, min_size: 1}
+        - {type: ConvertPILImage, dtype: 'float32', scale: True}
+        - {type: ConvertBoxes, fmt: 'cxcywh', normalize: True}
+      # Mosaic options
+      policy:
+        epoch: [4, 36, 60]   # list
+        ops: ['Mosaic', 'RandomPhotometricDistort', 'RandomZoomOut', 'RandomIoUCrop']
+      mosaic_prob: 0.5
+
+  collate_fn:
+    # Mixup options
+    mixup_prob: 0.5
+    mixup_epochs: [4, 36]
+    stop_epoch: 60    # epoch in [60, ~) stop `multiscales`
+    # CopyBlend options
+    copyblend_prob: 0.5
+    copyblend_epochs: [4, 60]
+    area_threshold: 100
+    num_objects: 3
+    with_expand: True
+    expand_ratios: [0.1, 0.25]
+
+    ema_restart_decay: 0.9999
+    base_size_repeat: 4
+
+## DEIM Loss
+DEIMCriterion:
+  weight_dict: {loss_mal: 1, loss_bbox: 5, loss_giou: 2, loss_fgl: 0.15, loss_ddf: 1.5}
+  losses: ['mal', 'boxes', 'local']
+  gamma: 1.5
+  alpha: 0.75
+  reg_max: 32
+
+  matcher:
+    type: HungarianMatcher
+    weight_dict: {cost_class: 2, cost_bbox: 5, cost_giou: 2}
+    alpha: 0.25
+    gamma: 2.0
+    # change matcher
+    change_matcher: True
+    iou_order_alpha: 4.0
+    matcher_change_epoch: 54  # epoch * 0.75

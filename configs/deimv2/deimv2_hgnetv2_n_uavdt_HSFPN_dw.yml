@@ -1,0 +1,143 @@
+# ==============================================================================
+# ABLATION: HFP output projection = 'dw'  (depthwise 3x3 only + GN)
+# ==============================================================================
+# Single-variable ablation against the sibling HSFPN experiment:
+#   - arm A (baseline): deimv2_hgnetv2_n_uavdt_HSFPN.yml
+#       output_dir: ./outputs/deimv2_hgnetv2_n_uavdt_HSFPN_dw_pw_real_all
+#       hsfpn_out_mode: 'dw_pw'   (dw3x3 + pw1x1 + GN)
+#   - arm B (this file): deimv2_hgnetv2_n_uavdt_HSFPN_dw.yml
+#       output_dir:   ./outputs/deimv2_hgnetv2_n_uavdt_HSFPN_dw_real
+#       hsfpn_out_mode: 'dw'       (dw3x3 + GN, pointwise channel mix removed)
+#
+# Everything else is byte-identical to arm A (HGNetv2 B0 backbone, 2-level
+# stride-16/32 neck, HFP @ stride-16 with shared DCT + isdct, DEIMTransformer
+# decoder, optimizer, LR schedule, data aug, matcher). The ONLY delta is
+# `hsfpn_out_mode`. The 'dw' arm drops the pw1x1 channel-mix of the HFP output
+# projection (~50x cheaper than the original conv3x3, vs ~8x for dw_pw),
+# trading the block-output channel interaction for cost while keeping the
+# DCT high-pass + spatial/channel masking (the HS-FPN idea) intact.
+#
+#   Dependency: the DCT path (hsfpn_isdct=True) requires `torch_dct`:
+#       pip install torch_dct
+#
+# Training Command (from scratch; single node, 2 GPUs):
+#   CUDA_VISIBLE_DEVICES=6,7 torchrun --nproc_per_node=2 --master_port=29504 \
+#       train.py \
+#       -c /workspace/cpfs-data/deimv2/configs/deimv2/deimv2_hgnetv2_n_uavdt_HSFPN_dw.yml \
+#       --use-amp --seed=0
+# ==============================================================================
+__include__: [
+  '../dataset/uavdt_detection.yml',
+  '../runtime.yml',
+  '../base/dataloader.yml',
+  '../base/optimizer.yml',
+  '../base/deimv2_encoder_HSFPN.yml'
+]
+
+output_dir: ./outputs/deimv2_hgnetv2_n_uavdt_HSFPN_dw_real
+
+HGNetv2:
+  name: 'B0'
+  return_idx: [2, 3]
+  freeze_at: -1
+  freeze_norm: False
+  pretrained: False
+  use_lab: True
+
+HybridEncoder_HSFPN:
+  in_channels: [512, 1024]
+  feat_strides: [16, 32]
+
+  # intra
+  hidden_dim: 128
+  # HFP applied at the high-resolution level (stride-16, 40x40) for tiny-object
+  # high-frequency enhancement (effect-first; baseline TE was at [1]=stride-32).
+  use_encoder_idx: [0]
+  num_encoder_layers: 1
+  dim_feedforward: 512
+
+  # cross
+  expansion: 0.34
+  depth_mult: 0.5
+
+  version: 'dfine'
+
+  # ---- HFP-specific ----
+  hsfpn_depth: 1            # HFP block replaces the single intra-scale TE
+  hsfpn_ratio: [0.25, 0.25] # DCT high-pass: zero the top-left 25% low-freq block
+  hsfpn_patch: [8, 8]       # channel-path adaptive-pool target
+  hsfpn_isdct: True         # use real DCT high-pass (needs torch_dct)
+  hsfpn_residual: True      # residual around each HFP block for stable stacking
+  # ---- Output projection (THIS IS THE ONLY LINE DIFFERENT FROM arm A) ----
+  # 'dw' = depthwise 3x3 + GN only (the pw1x1 channel mix of 'dw_pw' is removed).
+  # The DCT high-pass + spatial/channel masking (the HS-FPN idea) is unchanged;
+  # only the channel interaction at the block output is dropped (~50x cheaper
+  # than the original conv3x3, vs ~8x for dw_pw). Ablate vs arm A by flipping
+  # this back to 'dw_pw'.
+  hsfpn_out_mode: 'dw'     # <-- ablation knob: 'dw_pw' (sibling) vs 'dw' (here)
+  hsfpn_share_dct: True    # share one DCT/IDCT pair between spatial & channel
+
+DEIMTransformer:
+  feat_channels: [128, 128]
+  feat_strides: [16, 32]
+  hidden_dim: 128
+  num_levels: 2
+  num_points: [6, 6]
+
+  num_layers: 3
+  eval_idx: -1
+
+  # FFN
+  dim_feedforward: 512
+
+optimizer:
+  type: AdamW
+  params:
+    -
+      params: '^(?=.*backbone)(?!.*norm|bn).*$'
+      lr: 0.0004
+    -
+      params: '^(?=.*backbone)(?=.*norm|bn).*$'
+      lr: 0.0004
+      weight_decay: 0.
+    -
+      params: '^(?=.*(?:encoder|decoder))(?=.*(?:norm|bn|bias)).*$'
+      weight_decay: 0.
+
+  lr: 0.0008
+  betas: [0.9, 0.999]
+  weight_decay: 0.0001
+
+# Increase to search for the optimal ema
+epoches: 160 # 148 + 12
+
+## Our LR-Scheduler
+flat_epoch: 7800    # 4 + epoch // 2, e.g., 40 = 4 + 72 / 2
+no_aug_epoch: 12
+lr_gamma: 1.0
+
+## Our DataAug
+train_dataloader:
+  dataset:
+    transforms:
+      policy:
+        epoch: [4, 78, 148]   # list
+
+  collate_fn:
+    ema_restart_decay: 0.9999
+    base_size_repeat: ~
+    mixup_epochs: [4, 78]
+    stop_epoch: 148
+    copyblend_prob: 0.4
+    copyblend_epochs: [4, 78]   # CP half
+    area_threshold: 100
+    num_objects: 3
+    with_expand: True
+    expand_ratios: [0.1, 0.25]
+
+DEIMCriterion:
+  matcher:
+    # new matcher
+    change_matcher: True
+    iou_order_alpha: 4.0
+    matcher_change_epoch: 136

@@ -1,0 +1,36 @@
+# QUEST ablation: replace all three query self-attentions; keep cross-attention.
+__include__: [
+  './deimv2_hgnetv2_moe_v2_n_uavdt_HSFPN_dw.yml'
+]
+
+output_dir: ./outputs/deimv2_hgnetv2_moe_v2_n_uavdt_HSFPN_dw_QUEST_decoder
+
+# Keep MoE routing/experts but disable the auxiliary loss and its logging.
+moe_loss_weight: 0.0
+
+DEIM:
+  backbone: HGNetv2_MoE_v2
+  encoder: HybridEncoder_HSFPN
+  decoder: DEIMTransformer_QUEST
+
+DEIMTransformer_QUEST:
+  feat_channels: [128, 128]
+  feat_strides: [16, 32]
+  hidden_dim: 128
+  num_levels: 2
+  num_points: [6, 6]
+  nhead: 8
+  num_layers: 3
+  eval_idx: -1
+  num_queries: 300
+  num_denoising: 100
+  label_noise_ratio: 0.5
+  box_noise_scale: 1.0
+  reg_max: 32
+  reg_scale: 4
+  layer_scale: 1
+  cross_attn_method: default
+  query_select_method: default
+  dim_feedforward: 512
+  activation: silu
+  mlp_act: silu

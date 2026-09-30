@@ -1,0 +1,204 @@
+# ==============================================================================
+# ABLATION arm B' (MoE v2 + HSFPN + LWGA_dw) with a MIXED LWGA / plain-MHA decoder.
+#   Built from deimv2_hgnetv2_moe_v2_n_uavdt_HSFPN_LWGA_dw.yml.
+#
+#   Sibling (baseline): deimv2_hgnetv2_moe_v2_n_uavdt_HSFPN_LWGA_dw.yml
+#       output_dir: ./outputs/deimv2_hgnetv2_moe_v2_n_uavdt_HSFPN_LWGA_dw
+#       decoder self-attn on ALL 3 layers = LWGA   (top AP ~20.84)
+#
+#   This arm (the ONLY delta): decoder uses LWGA on layers [0,1] only; the final
+#   (eval) layer - the one that runs at inference and drives final accuracy - is
+#   switched back to the original content-based nn.MultiheadAttention.
+#
+#   Per-layer control implemented in engine/deim/deim_decoder_lwga.py:
+#       use_lwga  : bool  - global default for every decoder layer
+#       lwga_layers : list[int] | None - if set, ONLY these indices use LWGA
+#                                       (overrides use_lwga); the rest use MHA.
+#
+#   MoE / HSFPN / HFP 'dw' output-projection / PaQ aux loss / MoE optimizer
+#   groups / sync_bn=False / moe_loss_weight / schedule / aug are byte-identical
+#   to the sibling dw run. The DCT path (hsfpn_isdct=True) needs `torch_dct`
+#   (pip install torch_dct).
+#
+# Training Command (bootstrap weights from the sibling dw run via -t tuning):
+#   CUDA_VISIBLE_DEVICES=0 torchrun --nproc_per_node=1 train.py \
+#       -c /mnt/e/Experiment/huya-deimv2/deimv2/configs/deimv2/deimv2_hgnetv2_moe_v2_n_uavdt_HSFPN_LWGA_dw_mix.yml \
+#       -t /mnt/e/Experiment/huya-deimv2/deimv2/outputs/deimv2_hgnetv2_moe_v2_n_uavdt_HSFPN_LWGA_dw/last.pth \
+#       --use-amp --seed=0
+#   After the first checkpoint is saved, switch -t to -r with this run's own
+#   last.pth to resume.
+# ==============================================================================
+__include__: [
+  '../dataset/uavdt_detection.yml',
+  '../runtime.yml',
+  '../base/dataloader.yml',
+  '../base/optimizer.yml',
+  '../base/deimv2_encoder_HSFPN.yml'
+]
+
+output_dir: ./outputs/deimv2_hgnetv2_moe_v2_n_uavdt_HSFPN_LWGA_dw_mix_1
+
+# MoE expert branches use conditional BN; SyncBN can hang when different ranks
+# activate different experts.
+sync_bn: False
+
+DEIM:
+  backbone: HGNetv2_MoE_v2
+  encoder: HybridEncoder_HSFPN
+  decoder: DEIMTransformer_LWGA
+
+# ==============================================================================
+# Block-level MoE v2 Backbone (same UAVDT setting as the sibling dw run)
+#   Only stage4 (stride-32, 20x20) uses whole-block MoE for the lightweight start.
+# ==============================================================================
+HGNetv2_MoE_v2:
+  name: 'B0'
+  return_idx: [2, 3]
+  freeze_at: -1
+  freeze_norm: False
+  pretrained: False
+  use_lab: True
+  num_experts: 3
+  top_k: 2
+  use_shared_expert: True
+  moe_stages: [3]            # only stage4 (stride-32, 20x20): cheapest, +~real MoE
+  expert_kernels: [3, 5, 7]  # heterogeneous multi-kernel experts
+  expert_act: 'silu'         # YOLO-Master style (decoupled from backbone relu)
+  expert_expand_ratio: 1     # hidden = mid_channels (lightweight)
+  balance_loss_coeff: 1.0
+  z_loss_coeff: 1.0
+
+HybridEncoder_HSFPN:
+  in_channels: [512, 1024]
+  feat_strides: [16, 32]
+
+  # intra
+  hidden_dim: 128
+  # HFP runs on the high-resolution level (stride-16), matching the standalone
+  # HSFPN experiment and avoiding extra cost on the MoE stride-32 stage.
+  use_encoder_idx: [0]
+  num_encoder_layers: 1
+  dim_feedforward: 512
+
+  # cross
+  expansion: 0.34
+  depth_mult: 0.5
+
+  version: 'dfine'
+
+  # HFP-specific
+  hsfpn_depth: 1            # HFP block replaces the single intra-scale TE
+  hsfpn_ratio: [0.25, 0.25] # DCT high-pass: zero the top-left 25% low-freq block
+  hsfpn_patch: [8, 8]       # channel-path adaptive-pool target
+  hsfpn_isdct: True         # use real DCT high-pass (needs torch_dct)
+  hsfpn_residual: True      # residual around each HFP block for stable stacking
+  hsfpn_out_mode: 'dw'      # depthwise 3x3 + GN only (pw1x1 channel mix removed)
+  hsfpn_share_dct: True     # share one DCT/IDCT pair between spatial & channel
+
+DEIMTransformer_LWGA:
+  feat_channels: [128, 128]
+  feat_strides: [16, 32]
+  hidden_dim: 128
+  num_levels: 2
+  num_points: [6, 6]
+
+  num_layers: 3
+  eval_idx: -1
+
+  # FFN
+  dim_feedforward: 512
+
+  # LWGA token self-attention
+  #   layers 0,1 use LWGA (global prior); layer 2 (eval layer, runs at inference)
+  #   falls back to the original nn.MultiheadAttention for precise refinement.
+  use_lwga: True
+  lwga_layers: [0, 1]
+  lwga_stage: 3
+  # 区别，之前是11现在是7
+  lwga_att_kernel: 7
+  lwga_mlp_ratio: 2.0
+  lwga_drop_path: 0.0
+  lwga_act: 'gelu'
+  lwga_norm_type: 'GN'
+  lwga_min_hw: 2
+  lwga_sort_by_ref: True
+  lwga_isolate_dn: True
+
+# ==============================================================================
+# Optimizer with MoE parameter groups
+#   v2 MoEBlock params match the same keywords (expert/router/shared_expert);
+#   MoEBlock.norm (BN) is caught by the backbone norm/bn group (wd=0).
+# ==============================================================================
+optimizer:
+  type: AdamW
+  params:
+    # Backbone norm/bn params
+    -
+      params: '^(?=.*backbone)(?=.*norm|bn).*$'
+      lr: 0.0004
+      weight_decay: 0.
+    # Backbone MoE params (expert, router, shared_expert) - exclude norm/bn
+    -
+      params: '^(?=.*backbone)(?=.*(?:expert|router|shared_expert|gate))(?!.*norm|bn).*$'
+      lr: 0.0004
+    # Backbone other params (exclude norm/bn and MoE params)
+    -
+      params: '^(?=.*backbone)(?!.*norm|bn)(?!.*expert)(?!.*router)(?!.*shared_expert)(?!.*gate).*$'
+      lr: 0.0004
+    # Encoder/Decoder norm/bn/bias params
+    -
+      params: '^(?=.*(?:encoder|decoder))(?=.*(?:norm|bn|bias)).*$'
+      weight_decay: 0.
+
+  lr: 0.0008
+  betas: [0.9, 0.999]
+  weight_decay: 0.0001
+
+# Training Schedule (for UAVDT)
+epoches: 160
+
+flat_epoch: 7800
+no_aug_epoch: 12
+lr_gamma: 1.0
+
+## MoE Loss Weight
+moe_loss_weight: 0.01
+
+## DataAug
+train_dataloader:
+  dataset:
+    transforms:
+      policy:
+        epoch: [4, 78, 148]
+
+  collate_fn:
+    ema_restart_decay: 0.9999
+    base_size_repeat: ~
+    mixup_epochs: [4, 78]
+    stop_epoch: 148
+    copyblend_prob: 0.4
+    copyblend_epochs: [4, 78]
+    area_threshold: 100
+    num_objects: 3
+    with_expand: True
+    expand_ratios: [0.1, 0.25]
+
+DEIMCriterion:
+  weight_dict: {loss_mal: 1, loss_bbox: 5, loss_giou: 2, loss_fgl: 0.15, loss_ddf: 1.5,
+                loss_paq_vfl: 1, loss_paq_bbox: 5, loss_paq_giou: 2}
+  # PaQ-DETR quality-aware one-to-many auxiliary branch (ablation toggle).
+  # Off by default in code; set paq_enable: True to turn on. Final decoder layer
+  # always stays one-to-one; this adds an adaptive one-to-many loss at the
+  # intermediate (aux) decoder layers only.
+  paq_enable: True
+  paq_gamma: 0.4          # s = IoU - gamma * cls_conf   (PaQ Eq. 6)
+  paq_k: 4                # nominal top-k for adaptive positive count (Eq. 7)
+  paq_l: 1                # min positives per GT
+  paq_iou_thr: 0.0        # only consider queries with IoU > thr as candidates
+  paq_layers: ~           # None = all intermediate aux layers; or list e.g. [0, 1]
+  paq_start_epoch: 4      # align with mosaic/mixup start
+  matcher:
+    # new matcher
+    change_matcher: True
+    iou_order_alpha: 4.0
+    matcher_change_epoch: 136

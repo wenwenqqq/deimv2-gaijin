@@ -1,0 +1,26 @@
+# LWTformer ablation 3: preserve the backbone/HSFPN/cross-attention and add
+# SEA's Value-derived gate to every DEIM decoder query self-attention layer.
+__include__: [
+  './deimv2_hgnetv2_moe_v2_n_uavdt_HSFPN_dw.yml'
+]
+
+output_dir: ./outputs/deimv2_hgnetv2_moe_v2_n_uavdt_HSFPN_dw_LWTSEA_decoder
+
+moe_loss_weight: 0.0
+
+DEIM:
+  backbone: HGNetv2_MoE_v2
+  encoder: HybridEncoder_HSFPN
+  decoder: DEIMTransformer_LWTSEA
+
+DEIMTransformer_LWTSEA:
+  feat_channels: [128, 128]
+  feat_strides: [16, 32]
+  hidden_dim: 128
+  num_levels: 2
+  num_points: [6, 6]
+  num_layers: 3
+  eval_idx: -1
+  dim_feedforward: 512
+  activation: 'silu'
+  mlp_act: 'silu'

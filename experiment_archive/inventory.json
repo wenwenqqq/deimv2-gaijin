@@ -1,0 +1,303 @@
+{
+  "snapshot": "experiments-2026-09-30",
+  "repository": "wenwenqqq/deimv2-gaijin",
+  "experiments": [
+    {
+      "name": "deimv2_hgnetv2_moe_v2_n_uavdt_HSFPN",
+      "files": 54,
+      "bytes": 1734041518,
+      "last_logged_epoch": 154
+    },
+    {
+      "name": "deimv2_hgnetv2_moe_v2_n_uavdt_HSFPN_dw",
+      "files": 39,
+      "bytes": 1553987434,
+      "last_logged_epoch": 138
+    },
+    {
+      "name": "deimv2_hgnetv2_moe_v2_n_uavdt_HSFPN_dw_LWTSEA_decoder",
+      "files": 23,
+      "bytes": 776728350,
+      "last_logged_epoch": 62
+    },
+    {
+      "name": "deimv2_hgnetv2_moe_v2_n_uavdt_HSFPN_dw_LWTWaveDown",
+      "files": 1,
+      "bytes": 178312,
+      "last_logged_epoch": null
+    },
+    {
+      "name": "deimv2_hgnetv2_moe_v2_n_uavdt_HSFPN_dw_LWTWaveDownLite",
+      "files": 26,
+      "bytes": 932085102,
+      "last_logged_epoch": 74
+    },
+    {
+      "name": "deimv2_hgnetv2_moe_v2_n_uavdt_HSFPN_dw_LWTWaveDownLite-no-moeloss",
+      "files": 8,
+      "bytes": 187778861,
+      "last_logged_epoch": 6
+    },
+    {
+      "name": "deimv2_hgnetv2_moe_v2_n_uavdt_HSFPN_dw_QUEST_decoder",
+      "files": 16,
+      "bytes": 600105159,
+      "last_logged_epoch": 47
+    },
+    {
+      "name": "deimv2_hgnetv2_moe_v2_n_uavdt_HSFPN_dw_real_moeloss",
+      "files": 6,
+      "bytes": 126041692,
+      "last_logged_epoch": 0
+    },
+    {
+      "name": "deimv2_hgnetv2_moe_v2_n_uavdt_HSFPN_LWGA",
+      "files": 44,
+      "bytes": 1836121282,
+      "last_logged_epoch": 159
+    },
+    {
+      "name": "deimv2_hgnetv2_moe_v2_n_uavdt_HSFPN_LWGA_dw",
+      "files": 48,
+      "bytes": 1771653059,
+      "last_logged_epoch": 159
+    },
+    {
+      "name": "deimv2_hgnetv2_moe_v2_n_uavdt_HSFPN_LWGA_dw_250ep",
+      "files": 17,
+      "bytes": 624618818,
+      "last_logged_epoch": 249
+    },
+    {
+      "name": "deimv2_hgnetv2_moe_v2_n_uavdt_HSFPN_LWGA_dw_mix",
+      "files": 20,
+      "bytes": 357291741,
+      "last_logged_epoch": 22
+    },
+    {
+      "name": "deimv2_hgnetv2_moe_v2_n_uavdt_HSFPN_LWGA_dw_mix_1",
+      "files": 21,
+      "bytes": 912210514,
+      "last_logged_epoch": 73
+    },
+    {
+      "name": "deimv2_hgnetv2_moe_v2_n_uavdt_LWGA",
+      "files": 41,
+      "bytes": 1505239101,
+      "last_logged_epoch": 117
+    },
+    {
+      "name": "deimv2_hgnetv2_moe_v2_n_uavdt_LWGA_nomeoloss",
+      "files": 10,
+      "bytes": 320624249,
+      "last_logged_epoch": 18
+    },
+    {
+      "name": "deimv2_hgnetv2_moe_v2_n_uavdt_real",
+      "files": 44,
+      "bytes": 1696678504,
+      "last_logged_epoch": 140
+    },
+    {
+      "name": "deimv2_hgnetv2_n_uavdt_HSFPN_dw_LWGA",
+      "files": 30,
+      "bytes": 1272617467,
+      "last_logged_epoch": 96
+    },
+    {
+      "name": "deimv2_hgnetv2_n_uavdt_HSFPN_dw_pw_real_all",
+      "files": 56,
+      "bytes": 1862383336,
+      "last_logged_epoch": 159
+    },
+    {
+      "name": "deimv2_hgnetv2_n_uavdt_HSFPN_dw_real",
+      "files": 48,
+      "bytes": 1855440089,
+      "last_logged_epoch": 159
+    },
+    {
+      "name": "deimv2_hgnetv2_n_uavdt_HSFPN_LWGA",
+      "files": 48,
+      "bytes": 1958595603,
+      "last_logged_epoch": 159
+    },
+    {
+      "name": "deimv2_hgnetv2_n_uavdt_LWGA",
+      "files": 60,
+      "bytes": 2050114610,
+      "last_logged_epoch": 159
+    },
+    {
+      "name": "deimv2_hgnetv2_n_uavdt_LWGA_mix",
+      "files": 28,
+      "bytes": 850806520,
+      "last_logged_epoch": 58
+    },
+    {
+      "name": "deimv2_hgnetv2_n_uavdt_PFGA_real_all",
+      "files": 43,
+      "bytes": 1489728643,
+      "last_logged_epoch": 159
+    }
+  ],
+  "annotations": [
+    {
+      "file": "uavdt_realtrain.json",
+      "images": 24143,
+      "annotations": 472308,
+      "missing_images": 0,
+      "missing_examples": []
+    },
+    {
+      "file": "uavdt_test.json",
+      "images": 16592,
+      "annotations": 416874,
+      "missing_images": 0,
+      "missing_examples": []
+    },
+    {
+      "file": "uavdt_train.json",
+      "images": 20591,
+      "annotations": 368048,
+      "missing_images": 0,
+      "missing_examples": []
+    },
+    {
+      "file": "uavdt_val.json",
+      "images": 3552,
+      "annotations": 104260,
+      "missing_images": 0,
+      "missing_examples": []
+    }
+  ],
+  "release_assets": [
+    {
+      "name": "annotations-001.zip",
+      "files": 4,
+      "uncompressed_bytes": 352267269
+    },
+    {
+      "name": "uavdt-images-001.zip",
+      "files": 7719,
+      "uncompressed_bytes": 1467830700
+    },
+    {
+      "name": "uavdt-images-002.zip",
+      "files": 7729,
+      "uncompressed_bytes": 1467878455
+    },
+    {
+      "name": "uavdt-images-003.zip",
+      "files": 10152,
+      "uncompressed_bytes": 1467939525
+    },
+    {
+      "name": "uavdt-images-004.zip",
+      "files": 10488,
+      "uncompressed_bytes": 1467843162
+    },
+    {
+      "name": "uavdt-images-005.zip",
+      "files": 4647,
+      "uncompressed_bytes": 918105261
+    },
+    {
+      "name": "experiments-001.zip",
+      "files": 28,
+      "uncompressed_bytes": 1428939208
+    },
+    {
+      "name": "experiments-002.zip",
+      "files": 47,
+      "uncompressed_bytes": 1421734234
+    },
+    {
+      "name": "experiments-003.zip",
+      "files": 44,
+      "uncompressed_bytes": 1467774443
+    },
+    {
+      "name": "experiments-004.zip",
+      "files": 42,
+      "uncompressed_bytes": 1465532679
+    },
+    {
+      "name": "experiments-005.zip",
+      "files": 29,
+      "uncompressed_bytes": 1422314964
+    },
+    {
+      "name": "experiments-006.zip",
+      "files": 36,
+      "uncompressed_bytes": 1453178870
+    },
+    {
+      "name": "experiments-007.zip",
+      "files": 45,
+      "uncompressed_bytes": 1460049647
+    },
+    {
+      "name": "experiments-008.zip",
+      "files": 43,
+      "uncompressed_bytes": 1461754594
+    },
+    {
+      "name": "experiments-009.zip",
+      "files": 39,
+      "uncompressed_bytes": 1448079850
+    },
+    {
+      "name": "experiments-010.zip",
+      "files": 30,
+      "uncompressed_bytes": 1446766513
+    },
+    {
+      "name": "experiments-011.zip",
+      "files": 37,
+      "uncompressed_bytes": 1437268862
+    },
+    {
+      "name": "experiments-012.zip",
+      "files": 33,
+      "uncompressed_bytes": 1446168736
+    },
+    {
+      "name": "experiments-013.zip",
+      "files": 47,
+      "uncompressed_bytes": 1418773106
+    },
+    {
+      "name": "experiments-014.zip",
+      "files": 39,
+      "uncompressed_bytes": 1433557714
+    },
+    {
+      "name": "experiments-015.zip",
+      "files": 25,
+      "uncompressed_bytes": 1448997000
+    },
+    {
+      "name": "experiments-016.zip",
+      "files": 37,
+      "uncompressed_bytes": 1436170904
+    },
+    {
+      "name": "experiments-017.zip",
+      "files": 49,
+      "uncompressed_bytes": 1431461274
+    },
+    {
+      "name": "experiments-018.zip",
+      "files": 37,
+      "uncompressed_bytes": 1421709685
+    },
+    {
+      "name": "experiments-019.zip",
+      "files": 24,
+      "uncompressed_bytes": 342323095
+    }
+  ],
+  "source_file_count": 1578,
+  "dataset_file_count": 40735
+}

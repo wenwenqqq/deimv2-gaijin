@@ -1,0 +1,21 @@
+Metadata-Version: 2.4
+Name: sparse_linear_attention
+Version: 0.1.0
+Summary: Sparse Linear Attention
+Home-page: https://github.com/thu-ml/SLA
+Author: Jintao Zhang, Haoxu Wang
+Author-email: jtzhang6@gmail.com
+Requires-Python: >=3.12
+License-File: LICENSE.txt
+Requires-Dist: torch>=2.7.0
+Requires-Dist: triton>=3.3.0
+Provides-Extra: benchmark
+Requires-Dist: flash-attn; extra == "benchmark"
+Dynamic: author
+Dynamic: author-email
+Dynamic: home-page
+Dynamic: license-file
+Dynamic: provides-extra
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary

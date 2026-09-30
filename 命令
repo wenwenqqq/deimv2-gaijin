@@ -1,10 +1,148 @@
 
 
-
-训练：CUDA_LAUNCH_BLOCKING=1 CUDA_VISIBLE_DEVICES=0 python train.py -c /mnt/e/Experiment/DEIMv2-main/configs/deimv2/deimv2_hgnetv2_n_uavdt.yml --use-amp --seed=0
-
+ps: 把dataloder的num_workers修改成12的时候会报错
 
 
+训练：
+CUDA_LAUNCH_BLOCKING=1 CUDA_VISIBLE_DEVICES=0 python train.py -c /mnt/e/Experiment/DEIMv2-main/configs/deimv2/deimv2_hgnetv2_n_uavdt.yml --use-amp --seed=0
+
+CUDA_LAUNCH_BLOCKING=1 CUDA_VISIBLE_DEVICES=0 python train.py -c /mnt/e/Experiment/huya-deimv2/deimv2/configs/deimv2/deimv2_hgnetv2_moe_v2_n_uavdt.yml --use-amp --seed=0 
+
+
+python train.py -c E:\Experiment\DEIMv2-main\configs\deimv2\deimv2_hgnetv2_n_uavdt_encoder_LCGA.yml --use-amp --seed=0
+
+
+CUDA_VISIBLE_DEVICES=6 TMPDIR=/workspace/cpfs-data/tmp python train.py -c /workspace/cpfs-data/deimv2/configs/deimv2/deimv2_hgnetv2_n_uavdt.yml -r /workspace/cpfs-data/deimv2/outputs/deimv2_hgnetv2_n_uavdt_baseline/last.pth --use-amp --seed=0
+
+cd /workspace/cpfs-data/deimv2
+conda activate deimv2
+
+CUDA_LAUNCH_BLOCKING=1 CUDA_VISIBLE_DEVICES=5 python train.py -c /workspace/cpfs-data/deimv2/configs/deimv2/deimv2_hgnetv2_n_uavdt_TransMixer.yml -r /workspace/cpfs-data/deimv2/outputs/deimv2_hgnetv2_n_uavdt_TransMixer/last.pth --use-amp --seed=0 
+
+
+CUDA_VISIBLE_DEVICES=6,7 torchrun --nproc_per_node=2 train.py \
+    -c /workspace/cpfs-data/deimv2/configs/deimv2/deimv2_hgnetv2_n_uavdt_TransMixer.yml \
+    -r /workspace/cpfs-data/deimv2/outputs/deimv2_hgnetv2_n_uavdt_TransMixer/last.pth \
+    --use-amp --seed=0
+
+CUDA_VISIBLE_DEVICES=6,7 torchrun --nproc_per_node=2 train.py \
+    -c /workspace/cpfs-data/deimv2/configs/deimv2/deimv2_hgnetv2_n_uavdt_TransMixer_new.yml \
+    -r /workspace/cpfs-data/deimv2/outputs/deimv2_hgnetv2_n_uavdt_TransMixer_new/last.pth \
+    --use-amp --seed=0
+
+CUDA_VISIBLE_DEVICES=2,4 torchrun --nproc_per_node=2 train.py \
+    -c /workspace/cpfs-data/deimv2/configs/deimv2/deimv2_hgnetv2_moe_n_uavdt.yml \
+    -r /workspace/cpfs-data/deimv2/outputs/deimv2_hgnetv2_moe_n_uavdt/last.pth \
+    --use-amp --seed=0
+
+CUDA_VISIBLE_DEVICES=2 python train.py \
+    -c /workspace/cpfs-data/deimv2/configs/deimv2/deimv2_hgnetv2_moe_n_uavdt.yml \
+    -r /workspace/cpfs-data/deimv2/outputs/deimv2_hgnetv2_moe_n_uavdt/last.pth \
+    --use-amp --seed=0
+
+CUDA_VISIBLE_DEVICES=0 python train.py \
+    -c /workspace/cpfs-data/deimv2/configs/deimv2/deimv2_hgnetv2_moe_n_uavdt.yml \
+    --use-amp --seed=0
+
+CUDA_VISIBLE_DEVICES=5,7 torchrun --nproc_per_node=2 train.py \
+    -c /workspace/cpfs-data/deimv2/configs/deimv2/deimv2_hgnetv2_moe_n_uavdt.yml \
+    -r /workspace/cpfs-data/deimv2/outputs_1/deimv2_hgnetv2_moe_n_uavdt/last.pth \
+    --use-amp --seed=0
+
+
+CUDA_VISIBLE_DEVICES=2 python train.py \
+    -c /workspace/cpfs-data/deimv2/configs/deimv2/deimv2_hgnetv2_moe_n_uavdt_singel.yml \
+    -r /workspace/cpfs-data/deimv2/outputs_1/deimv2_hgnetv2_moe_n_uavdt/last.pth \
+    --use-amp --seed=0
+
+cd /workspace/cpfs-data/deimv2 && conda activate deimv2
+CUDA_VISIBLE_DEVICES=0 python train.py \
+    -c /workspace/cpfs-data/deimv2/configs/deimv2/deimv2_hgnetv2_moe_v2_n_uavdt.yml \
+    -r /workspace/cpfs-data/deimv2/outputs/deimv2_hgnetv2_moe_v2_n_uavdt/last.pth \
+    --use-amp --seed=0
+
+cd /workspace/cpfs-data/deimv2 && conda activate deimv2
+CUDA_VISIBLE_DEVICES=2,4 torchrun --nproc_per_node=2 train.py \
+    -c /workspace/cpfs-data/deimv2/configs/deimv2/deimv2_hgnetv2_n_uavdt_PFGA.yml \
+    -r /workspace/cpfs-data/deimv2/outputs/deimv2_hgnetv2_n_uavdt_PFGA_real/last.pth \
+    --use-amp --seed=0
+
+cd /workspace/cpfs-data/deimv2 && conda activate deimv2
+CUDA_VISIBLE_DEVICES=2 python train.py \
+    -c /workspace/cpfs-data/deimv2/configs/deimv2/deimv2_hgnetv2_n_uavdt_HSFPN.yml \
+    -r /workspace/cpfs-data/deimv2/outputs/deimv2_hgnetv2_n_uavdt_HSFPN/last.pth \
+    --use-amp --seed=0
+
+cd /workspace/cpfs-data/deimv2 && conda activate deimv2
+CUDA_VISIBLE_DEVICES=3 python train.py \
+    -c /workspace/cpfs-data/deimv2/configs/deimv2/deimv2_hgnetv2_n_uavdt_Combo.yml \
+    --use-amp --seed=0
+
+cd /workspace/cpfs-data/deimv2 && conda activate deimv2
+CUDA_VISIBLE_DEVICES=1 python train.py \
+  -c /workspace/cpfs-data/deimv2/configs/deimv2/deimv2_hgnetv2_n_uavdt_pqa.yml \
+  -r /workspace/cpfs-data/deimv2/outputs/deimv2_hgnetv2_n_uavdt_paq/last.pth \
+  --use-amp --seed=0
 
 
 
+cd /workspace/cpfs-data/deimv2 && conda activate deimv2
+CUDA_VISIBLE_DEVICES=0 python train.py \
+    -c /workspace/cpfs-data/deimv2/configs/deimv2/deimv2_hgnetv2_moe_v2_n_uavdt.yml \
+    --use-amp --seed=0
+
+cd /workspace/cpfs-data/deimv2 && conda activate deimv2
+CUDA_VISIBLE_DEVICES=4 python train.py \
+    -c /workspace/cpfs-data/deimv2/configs/deimv2/deimv2_hgnetv2_n_uavdt_PFGA.yml \
+    -r /workspace/cpfs-data/deimv2/outputs/deimv2_hgnetv2_n_uavdt_PFGA_real/last.pth \
+    --use-amp --seed=0
+
+cd /workspace/cpfs-data/deimv2 && conda activate deimv2
+CUDA_VISIBLE_DEVICES=2 python train.py \
+    -c /workspace/cpfs-data/deimv2/configs/deimv2/deimv2_hgnetv2_n_uavdt_HSFPN.yml \
+    --use-amp --seed=0
+
+cd /workspace/cpfs-data/deimv2 && conda activate deimv2
+CUDA_VISIBLE_DEVICES=3 python train.py \
+    -c /workspace/cpfs-data/deimv2/configs/deimv2/deimv2_hgnetv2_n_uavdt_Combo.yml \
+    --use-amp --seed=0
+
+cd /workspace/cpfs-data/deimv2 && conda activate deimv2
+CUDA_VISIBLE_DEVICES=1 python train.py \
+  -c /workspace/cpfs-data/deimv2/configs/deimv2/deimv2_hgnetv2_n_uavdt_pqa.yml \
+  --use-amp --seed=0
+
+cd /workspace/cpfs-data/deimv2 && conda activate deimv2
+CUDA_VISIBLE_DEVICES=0,1 torchrun --nproc_per_node=2 --master_port=29501 train.py \
+    -c /workspace/cpfs-data/deimv2/configs/deimv2/deimv2_hgnetv2_n_uavdt_TransMixer.yml \
+    -r /workspace/cpfs-data/deimv2/outputs/deimv2_hgnetv2_n_uavdt_TransMixer_real/last.pth \
+    --use-amp --seed=0
+
+cd /workspace/cpfs-data/deimv2 && conda activate deimv2
+CUDA_VISIBLE_DEVICES=2,4 torchrun --nproc_per_node=2 train.py \
+    -c /workspace/cpfs-data/deimv2/configs/deimv2/deimv2_hgnetv2_n_uavdt_PFGA.yml \
+    -r /workspace/cpfs-data/deimv2/outputs/deimv2_hgnetv2_n_uavdt_PFGA_real/last.pth \
+    --use-amp --seed=0
+
+cd /workspace/cpfs-data/deimv2 && conda activate deimv2
+CUDA_VISIBLE_DEVICES=2,3 torchrun --nproc_per_node=2 train.py \
+    -c /workspace/cpfs-data/deimv2/configs/deimv2/deimv2_hgnetv2_n_uavdt_HSFPN.yml \
+    -r /workspace/cpfs-data/deimv2/outputs/deimv2_hgnetv2_n_uavdt_HSFPN_dw_pw_real_all/last.pth \
+    --use-amp --seed=0
+
+cd /workspace/cpfs-data/deimv2 && conda activate deimv2
+CUDA_VISIBLE_DEVICES=0,1 torchrun --nproc_per_node=2 --master_port=29501 train.py \
+    -c /workspace/cpfs-data/deimv2/configs/deimv2/deimv2_hgnetv2_n_uavdt_PFGA.yml \
+    -r /workspace/cpfs-data/deimv2/outputs/deimv2_hgnetv2_n_uavdt_PFGA_real_all/last.pth \
+    --use-amp --seed=0
+
+cd /workspace/cpfs-data/deimv2 && conda activate deimv2
+CUDA_VISIBLE_DEVICES=2,3 torchrun --nproc_per_node=2 --master_port=29502  train.py \
+  -c /workspace/cpfs-data/deimv2/configs/deimv2/deimv2_hgnetv2_n_uavdt_pqa.yml \
+  -r /workspace/cpfs-data/deimv2/outputs/deimv2_hgnetv2_n_uavdt_paq_real_all/checkpoint0019.pth \
+  --use-amp --seed=0
+
+cd /workspace/cpfs-data/deimv2 && conda activate deimv2
+CUDA_VISIBLE_DEVICES=4,5 torchrun --nproc_per_node=2 --master_port=29501  train.py \
+    -c /workspace/cpfs-data/deimv2/configs/deimv2/deimv2_hgnetv2_n_uavdt_Combo.yml \
+    --use-amp --seed=0

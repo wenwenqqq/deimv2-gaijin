@@ -1,0 +1,198 @@
+# ==============================================================================
+# ABLATION arm C: HSFPN 'dw' + block-level MoE v2 backbone, MoE aux loss DISABLED
+# ==============================================================================
+# Single-variable ablation against arm B (the dw run):
+#   - arm B (baseline): deimv2_hgnetv2_moe_v2_n_uavdt_HSFPN_dw.yml
+#       output_dir:      ./outputs/deimv2_hgnetv2_moe_v2_n_uavdt_HSFPN_dw
+#       hsfpn_out_mode:  'dw'
+#       moe_loss_weight: 0.01   (MoE load-balance + z loss APPLIED)
+#   - arm C (this file): deimv2_hgnetv2_moe_v2_n_uavdt_HSFPN_dw_nomoeloss.yml
+#       output_dir:      ./outputs/deimv2_hgnetv2_moe_v2_n_uavdt_HSFPN_dw_nomoeloss
+#       hsfpn_out_mode:  'dw'          (identical to arm B)
+#       moe_loss_weight: 0             (MoE load-balance + z loss DROPPED)
+#
+# Everything else is byte-identical to arm B (MoE v2 backbone @ stage4, HFP @
+# stride-16 with shared DCT + isdct, vanilla DEIMTransformer decoder, MoE
+# optimizer param groups, sync_bn=False, schedule, aug, matcher). The ONLY
+# delta is `moe_loss_weight` (0.01 -> 0).
+#
+# Mechanism: `moe_loss_weight` is read in engine/solver/det_solver.py and added
+# in engine/solver/det_engine.train_one_epoch as
+#     loss = sum(criterion(outputs, targets)) + moe_loss_weight * sum(per_block_moe_aux_losses)
+# Setting it to 0 makes the MoE auxiliary (load-balance + z) loss contribute
+# ZERO gradient to the total loss. The aux loss is still computed inside each
+# MoEBlock (balance_loss_coeff / z_loss_coeff below are kept at 1.0) and is
+# still logged as `moe_aux_loss` in the loss dict / TensorBoard, so routing
+# health can be monitored -- only its effect on optimization is removed. The
+# router keeps being trained through the expert outputs via the main detection
+# loss; the explicit MoE regularizer is the only thing dropped.
+#
+#   Dependency: the DCT path (hsfpn_isdct=True) requires `torch_dct`:
+#       pip install torch_dct
+#
+# Training Command (from scratch; single node, 2 GPUs):
+#   CUDA_VISIBLE_DEVICES=2,4 torchrun --nproc_per_node=2 --master_port=29508 \
+#       train.py \
+#       -c /workspace/cpfs-data/deimv2/configs/deimv2/deimv2_hgnetv2_moe_v2_n_uavdt_HSFPN_dw_nomoeloss.yml \
+#       --use-amp --seed=0
+# ==============================================================================
+__include__: [
+  '../dataset/uavdt_detection.yml',
+  '../runtime.yml',
+  '../base/dataloader.yml',
+  '../base/optimizer.yml',
+  '../base/deimv2_encoder_HSFPN.yml'
+]
+
+output_dir: ./outputs/deimv2_hgnetv2_moe_v2_n_uavdt_HSFPN_dw_nomoeloss
+
+# MoE expert branches use conditional BN; SyncBN can hang when different ranks
+# activate different experts.
+sync_bn: False
+
+DEIM:
+  backbone: HGNetv2_MoE_v2
+  encoder: HybridEncoder_HSFPN
+  decoder: DEIMTransformer
+
+# ==============================================================================
+# Block-level MoE v2 Backbone (same UAVDT setting as arm B)
+#   Only stage4 (stride-32, 20x20) uses whole-block MoE for the lightweight start.
+#   balance_loss_coeff / z_loss_coeff are kept at 1.0 so the MoE aux loss is
+#   still COMPUTED & LOGGED (see moe_loss_weight below for why it is not
+#   applied). They have no effect on training once moe_loss_weight == 0.
+# ==============================================================================
+HGNetv2_MoE_v2:
+  name: 'B0'
+  return_idx: [2, 3]
+  freeze_at: -1
+  freeze_norm: False
+  pretrained: False
+  use_lab: True
+  num_experts: 3
+  top_k: 2
+  use_shared_expert: True
+  moe_stages: [3]            # only stage4 (stride-32, 20x20): cheapest, +~real MoE
+  expert_kernels: [3, 5, 7]  # heterogeneous multi-kernel experts
+  expert_act: 'silu'         # YOLO-Master style (decoupled from backbone relu)
+  expert_expand_ratio: 1     # hidden = mid_channels (lightweight)
+  balance_loss_coeff: 1.0    # kept 1.0: loss still computed/logged, see moe_loss_weight
+  z_loss_coeff: 1.0           # kept 1.0: loss still computed/logged, see moe_loss_weight
+
+HybridEncoder_HSFPN:
+  in_channels: [512, 1024]
+  feat_strides: [16, 32]
+
+  # intra
+  hidden_dim: 128
+  # HFP runs on the high-resolution level (stride-16), matching the standalone
+  # HSFPN experiment and avoiding extra cost on the MoE stride-32 stage.
+  use_encoder_idx: [0]
+  num_encoder_layers: 1
+  dim_feedforward: 512
+
+  # cross
+  expansion: 0.34
+  depth_mult: 0.5
+
+  version: 'dfine'
+
+  # HFP-specific
+  hsfpn_depth: 1            # HFP block replaces the single intra-scale TE
+  hsfpn_ratio: [0.25, 0.25] # DCT high-pass: zero the top-left 25% low-freq block
+  hsfpn_patch: [8, 8]       # channel-path adaptive-pool target
+  hsfpn_isdct: True         # use real DCT high-pass (needs torch_dct)
+  hsfpn_residual: True      # residual around each HFP block for stable stacking
+  # ---- Output projection (identical to arm B) ----
+  # 'dw' = depthwise 3x3 + GN only (the pw1x1 channel mix of 'dw_pw' is removed).
+  # The DCT high-pass + spatial/channel masking (the HS-FPN idea) is unchanged;
+  # only the channel interaction at the block output is dropped (~50x cheaper
+  # than the original conv3x3, vs ~8x for dw_pw).
+  hsfpn_out_mode: 'dw'
+  hsfpn_share_dct: True    # share one DCT/IDCT pair between spatial & channel
+
+DEIMTransformer:
+  feat_channels: [128, 128]
+  feat_strides: [16, 32]
+  hidden_dim: 128
+  num_levels: 2
+  num_points: [6, 6]
+
+  num_layers: 3
+  eval_idx: -1
+
+  # FFN
+  dim_feedforward: 512
+
+# ==============================================================================
+# Optimizer with MoE parameter groups
+#   v2 MoEBlock params match the same keywords (expert/router/shared_expert);
+#   MoEBlock.norm (BN) is caught by the backbone norm/bn group (wd=0).
+# ==============================================================================
+optimizer:
+  type: AdamW
+  params:
+    # Backbone norm/bn params
+    -
+      params: '^(?=.*backbone)(?=.*norm|bn).*$'
+      lr: 0.0004
+      weight_decay: 0.
+    # Backbone MoE params (expert, router, shared_expert) - exclude norm/bn
+    -
+      params: '^(?=.*backbone)(?=.*(?:expert|router|shared_expert|gate))(?!.*norm|bn).*$'
+      lr: 0.0004
+    # Backbone other params (exclude norm/bn and MoE params)
+    -
+      params: '^(?=.*backbone)(?!.*norm|bn)(?!.*expert)(?!.*router)(?!.*shared_expert)(?!.*gate).*$'
+      lr: 0.0004
+    # Encoder/Decoder norm/bn/bias params
+    -
+      params: '^(?=.*(?:encoder|decoder))(?=.*(?:norm|bn|bias)).*$'
+      weight_decay: 0.
+
+  lr: 0.0008
+  betas: [0.9, 0.999]
+  weight_decay: 0.0001
+
+# Training Schedule (for UAVDT)
+epoches: 160
+
+flat_epoch: 7800
+no_aug_epoch: 12
+lr_gamma: 1.0
+
+## MoE Loss Weight
+# arm C ablation knob (THE ONLY LINE DIFFERENT FROM arm B):
+#   arm B: 0.01   -> MoE aux (load-balance + z) loss added to the total loss
+#   arm C: 0      -> MoE aux loss DROPPED from the total loss (zero gradient)
+# The loss is still computed inside each MoEBlock (coeffs above are 1.0) and
+# logged as `moe_aux_loss`; only its contribution to optimization is removed.
+# NOTE: do not delete this key -- if absent, engine/solver/det_solver.py falls
+# back to a default of 0.01 and the loss would silently come back.
+moe_loss_weight: 0
+
+## DataAug
+train_dataloader:
+  dataset:
+    transforms:
+      policy:
+        epoch: [4, 78, 148]
+
+  collate_fn:
+    ema_restart_decay: 0.9999
+    base_size_repeat: ~
+    mixup_epochs: [4, 78]
+    stop_epoch: 148
+    copyblend_prob: 0.4
+    copyblend_epochs: [4, 78]
+    area_threshold: 100
+    num_objects: 3
+    with_expand: True
+    expand_ratios: [0.1, 0.25]
+
+DEIMCriterion:
+  matcher:
+    # new matcher
+    change_matcher: True
+    iou_order_alpha: 4.0
+    matcher_change_epoch: 136

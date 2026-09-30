@@ -1,3 +1,5 @@
+> UAVDT experiment snapshot (2026-09-30): [experiment list, dataset and checkpoint download instructions](experiment_archive/README.md).
+
 <h2 align="center">
   Real-Time Object Detection Meets DINOv3
 </h2>

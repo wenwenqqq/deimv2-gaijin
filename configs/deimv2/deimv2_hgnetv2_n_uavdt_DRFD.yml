@@ -1,0 +1,137 @@
+# ==============================================================================
+# DEIMv2 + HGNetv2 B0 on UAVDT with DRFD encoder downsampling.
+#   Based on configs/deimv2/deimv2_hgnetv2_n_uavdt_LWGA.yml.
+#   The encoder's PAN downsampler is swapped from `SCDown` to LWGANet's DRFD
+#   module (engine/deim/hybrid_encoder_drfd.py -> HybridEncoderDRFD).
+#
+#   DRFD replaces only the bottom-up PAN downsampler
+#   (`HybridEncoder.downsample_convs`), which in the original encoder is
+#   `SCDown(hidden_dim, hidden_dim, 3, 2)`. The DRFD variant is built
+#   channel-preserving (out_mult=1, hidden_dim -> hidden_dim, stride 2) so it
+#   is a 1:1 drop-in and the `sum`/`cat` fusion in `HybridEncoder.forward` is
+#   unchanged. The decoder here is the standard DEIMTransformer (no LWGA) —
+#   this config isolates the encoder-side DRFD change. To combine with the
+#   LWGA decoder, set `decoder: DEIMTransformer_LWGA` and add its kwargs.
+#
+# Training Command:
+#   CUDA_VISIBLE_DEVICES=2 python train.py \
+#       -c /workspace/cpfs-data/deimv2/configs/deimv2/deimv2_hgnetv2_n_uavdt_DRFD.yml \
+#       --use-amp --seed=0
+# ==============================================================================
+__include__: [
+  '../dataset/uavdt_detection.yml',
+  '../runtime.yml',
+  '../base/dataloader.yml',
+  '../base/optimizer.yml',
+  '../base/deimv2.yml'
+]
+
+output_dir: ./outputs/deimv2_hgnetv2_n_uavdt_DRFD
+
+DEIM:
+  backbone: HGNetv2
+  encoder: HybridEncoderDRFD
+  decoder: DEIMTransformer
+
+HGNetv2:
+  name: 'B0'
+  return_idx: [2, 3]
+  freeze_at: -1
+  freeze_norm: False
+  pretrained: False
+  use_lab: True
+
+HybridEncoderDRFD:
+  in_channels: [512, 1024]
+  feat_strides: [16, 32]
+
+  # intra
+  hidden_dim: 128
+  use_encoder_idx: [1]
+  dim_feedforward: 512
+
+  # cross
+  expansion: 0.34
+  depth_mult: 0.5
+
+  version: 'dfine'
+  # RepNCSPELAN4 (version='dfine' fuse block) only builds for csp_type='csp2';
+  # the base config sets this under the `HybridEncoder:` key, which is NOT
+  # picked up when the encoder is `HybridEncoderDRFD`, so set it here too.
+  csp_type: 'csp2'
+
+  # DRFD downsampler (replaces SCDown in the PAN path)
+  drfd_act: 'silu'
+
+DEIMTransformer:
+  feat_channels: [128, 128]
+  feat_strides: [16, 32]
+  hidden_dim: 128
+  num_levels: 2
+  num_points: [6, 6]
+
+  num_layers: 3
+  eval_idx: -1
+
+  # FFN
+  dim_feedforward: 512
+
+optimizer:
+  type: AdamW
+  params:
+    -
+      params: '^(?=.*backbone)(?!.*norm|bn).*$'
+      lr: 0.0004
+    -
+      params: '^(?=.*backbone)(?=.*norm|bn).*$'
+      lr: 0.0004
+      weight_decay: 0.
+    -
+      params: '^(?=.*(?:encoder|decoder))(?=.*(?:norm|bn|bias)).*$'
+      weight_decay: 0.
+
+  lr: 0.0008
+  betas: [0.9, 0.999]
+  weight_decay: 0.0001
+
+# Increase to search for the optimal ema
+epoches: 160 # 148 + 12
+
+## Our LR-Scheduler
+flat_epoch: 7800    # 4 + epoch // 2, e.g., 40 = 4 + 72 / 2
+no_aug_epoch: 12
+lr_gamma: 1.0
+
+## Our DataAug
+train_dataloader:
+  dataset:
+    transforms:
+      policy:
+        epoch: [4, 78, 148]   # list
+
+  collate_fn:
+    ema_restart_decay: 0.9999
+    base_size_repeat: ~
+    mixup_epochs: [4, 78]
+    stop_epoch: 148
+    copyblend_prob: 0.4
+    copyblend_epochs: [4, 78]   # CP half
+    area_threshold: 100
+    num_objects: 3
+    with_expand: True
+    expand_ratios: [0.1, 0.25]
+
+DEIMCriterion:
+  weight_dict: {loss_mal: 1, loss_bbox: 5, loss_giou: 2, loss_fgl: 0.15, loss_ddf: 1.5,
+                loss_paq_vfl: 1, loss_paq_bbox: 5, loss_paq_giou: 2}
+  paq_enable: True
+  paq_gamma: 0.4
+  paq_k: 4
+  paq_l: 1
+  paq_iou_thr: 0.0
+  paq_layers: ~
+  paq_start_epoch: 4
+  matcher:
+    change_matcher: True
+    iou_order_alpha: 4.0
+    matcher_change_epoch: 136

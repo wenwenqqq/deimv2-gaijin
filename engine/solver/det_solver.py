@@ -83,18 +83,19 @@ class DetSolver(BaseSolver):
             train_stats = train_one_epoch(
                 self.self_lr_scheduler,
                 self.lr_scheduler,
-                self.model, 
-                self.criterion, 
-                self.train_dataloader, 
-                self.optimizer, 
-                self.device, 
-                epoch, 
-                max_norm=args.clip_max_norm, 
-                print_freq=args.print_freq, 
-                ema=self.ema, 
-                scaler=self.scaler, 
+                self.model,
+                self.criterion,
+                self.train_dataloader,
+                self.optimizer,
+                self.device,
+                epoch,
+                max_norm=args.clip_max_norm,
+                print_freq=args.print_freq,
+                ema=self.ema,
+                scaler=self.scaler,
                 lr_warmup_scheduler=self.lr_warmup_scheduler,
-                writer=self.writer
+                writer=self.writer,
+                moe_loss_weight=args.yaml_cfg.get('moe_loss_weight', 0.01)
             )
 
             if not self.self_lr_scheduler:  # update by epoch 

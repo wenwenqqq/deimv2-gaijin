@@ -1,0 +1,156 @@
+# ==============================================================================
+# DEIMv2 + HGNetv2 B0 on UAVDT with NSA decoder self-attention
+#   Based on configs/deimv2/deimv2_hgnetv2_n_uavdt_LWGA.yml.
+#   Only the decoder is changed from DEIMTransformer_LWGA to DEIMTransformer_NSA.
+#
+#   NSA (Native Sparse Attention, arXiv:2502.11089) replaces the decoder query
+#   self-attention with a three-branch sparse attention (compression / token
+#   selection / sliding window) aggregated by learned gates. Cross-attention
+#   remains the original MSDeformableAttention to preserve multi-scale
+#   reference-point sampling.
+#
+# Training Command:
+#   CUDA_VISIBLE_DEVICES=5,6 torchrun --nproc_per_node=2 --master_port=29500 \
+#       train.py -c /workspace/cpfs-data/deimv2/configs/deimv2/deimv2_hgnetv2_n_uavdt_NSA.yml \
+#       --use-amp --seed=0
+# ==============================================================================
+__include__: [
+  '../dataset/uavdt_detection.yml',
+  '../runtime.yml',
+  '../base/dataloader.yml',
+  '../base/optimizer.yml',
+  '../base/deimv2.yml'
+]
+
+output_dir: ./outputs/deimv2_hgnetv2_n_uavdt_NSA_gate
+
+DEIM:
+  backbone: HGNetv2
+  encoder: HybridEncoder
+  decoder: DEIMTransformer_NSA
+
+HGNetv2:
+  name: 'B0'
+  return_idx: [2, 3]
+  freeze_at: -1
+  freeze_norm: False
+  pretrained: False
+  use_lab: True
+
+HybridEncoder:
+  in_channels: [512, 1024]
+  feat_strides: [16, 32]
+
+  # intra
+  hidden_dim: 128
+  use_encoder_idx: [1]
+  dim_feedforward: 512
+
+  # cross
+  expansion: 0.34
+  depth_mult: 0.5
+
+  version: 'dfine'
+
+DEIMTransformer_NSA:
+  feat_channels: [128, 128]
+  feat_strides: [16, 32]
+  hidden_dim: 128
+  num_levels: 2
+  num_points: [6, 6]
+
+  num_layers: 3
+  eval_idx: -1
+
+  # FFN
+  dim_feedforward: 512
+
+  # NSA token self-attention
+  #   block_len            - compression / selection block length l (Eq. 7)
+  #   num_selected_blocks  - top-n blocks kept by the selection branch (Eq. 11)
+  #   window_size          - sliding-window half-width w (Sec. 3.3.3)
+  #   min_tokens           - chunks smaller than this fall back to dense MHA
+  #   sort_by_ref          - order queries by reference point before block/window ops
+  #   isolate_dn           - process each DN reconstruction group independently
+  #   out_low_rank         - low-rank rank r for each branch's out_proj (default dim//4)
+  #   attn_gate            - Gated Attention (G1) gate on each branch's attention
+  #                         output, before out_proj (Qiu et al., arXiv:2505.06708).
+  #                         Gate logits are produced by over-projecting the shared
+  #                         query, so no extra module is added; shared across the
+  #                         three NSA branches and orthogonal to the NSA Eq.5 branch gate.
+  #     none       : no G1 gate (plain NSA)
+  #     headwise   : one scalar gate per (query, head)   - almost free
+  #     elementwise: one gate per (query, head, head_dim) - slightly heavier
+  nsa_block_len: 8
+  nsa_num_selected_blocks: 4
+  nsa_window_size: 8
+  nsa_min_tokens: 16
+  nsa_sort_by_ref: True
+  nsa_isolate_dn: True
+  nsa_out_low_rank: ~            # default dim//4
+  nsa_attn_gate: headwise        # none(纯 NSA) | headwise | elementwise
+
+optimizer:
+  type: AdamW
+  params:
+    -
+      params: '^(?=.*backbone)(?!.*norm|bn).*$'
+      lr: 0.0004
+    -
+      params: '^(?=.*backbone)(?=.*norm|bn).*$'
+      lr: 0.0004
+      weight_decay: 0.
+    -
+      params: '^(?=.*(?:encoder|decoder))(?=.*(?:norm|bn|bias)).*$'
+      weight_decay: 0.
+
+  lr: 0.0008
+  betas: [0.9, 0.999]
+  weight_decay: 0.0001
+
+# Increase to search for the optimal ema
+epoches: 160 # 148 + 12
+
+## Our LR-Scheduler
+flat_epoch: 7800    # 4 + epoch // 2, e.g., 40 = 4 + 72 / 2
+no_aug_epoch: 12
+lr_gamma: 1.0
+
+## Our DataAug
+train_dataloader:
+  dataset:
+    transforms:
+      policy:
+        epoch: [4, 78, 148]   # list
+
+  collate_fn:
+    ema_restart_decay: 0.9999
+    base_size_repeat: ~
+    mixup_epochs: [4, 78]
+    stop_epoch: 148
+    copyblend_prob: 0.4
+    copyblend_epochs: [4, 78]   # CP half
+    area_threshold: 100
+    num_objects: 3
+    with_expand: True
+    expand_ratios: [0.1, 0.25]
+
+DEIMCriterion:
+  weight_dict: {loss_mal: 1, loss_bbox: 5, loss_giou: 2, loss_fgl: 0.15, loss_ddf: 1.5,
+                loss_paq_vfl: 1, loss_paq_bbox: 5, loss_paq_giou: 2}
+  # PaQ-DETR quality-aware one-to-many auxiliary branch (ablation toggle).
+  # Off by default in code; set paq_enable: True to turn on. Final decoder layer
+  # always stays one-to-one; this adds an adaptive one-to-many loss at the
+  # intermediate (aux) decoder layers only.
+  paq_enable: True
+  paq_gamma: 0.4
+  paq_k: 4
+  paq_l: 1
+  paq_iou_thr: 0.0
+  paq_layers: ~
+  paq_start_epoch: 4
+  matcher:
+    # new matcher
+    change_matcher: True
+    iou_order_alpha: 4.0
+    matcher_change_epoch: 136

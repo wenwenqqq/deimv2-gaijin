@@ -4,7 +4,7 @@ checkpoint_freq: 12
 
 
 sync_bn: True
-find_unused_parameters: True
+find_unused_parameters: True  # MoE需要设置为True，因为Top-K选择会导致部分专家不参与计算
 
 
 use_amp: False

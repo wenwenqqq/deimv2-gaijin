@@ -21,6 +21,46 @@ from ..data import CocoEvaluator
 from ..misc import MetricLogger, SmoothedValue, dist_utils
 
 
+def has_moe_backbone(model: torch.nn.Module) -> bool:
+    """
+    Check if the model uses MoE backbone (HGNetv2_MoE).
+
+    Returns:
+        bool: True if model has MoE backbone, False otherwise
+    """
+    if hasattr(model, 'backbone'):
+        # Check by class name
+        backbone_name = model.backbone.__class__.__name__
+        if 'MoE' in backbone_name or 'moe' in backbone_name.lower():
+            return True
+        # Check by attribute
+        if hasattr(model.backbone, 'get_auxiliary_losses'):
+            return True
+    return False
+
+
+def collect_moe_auxiliary_losses(model: torch.nn.Module):
+    """
+    Collect MoE auxiliary losses from backbone (HGNetv2_MoE).
+
+    Returns:
+        moe_loss: Sum of all MoE auxiliary losses
+        moe_loss_dict: Dictionary with individual MoE loss components
+    """
+    moe_loss = torch.tensor(0.0, device=next(model.parameters()).device)
+    moe_loss_dict = {}
+
+    # Check if backbone has MoE auxiliary losses
+    if has_moe_backbone(model) and hasattr(model.backbone, 'get_auxiliary_losses'):
+        aux_losses = model.backbone.get_auxiliary_losses()
+        if aux_losses:
+            moe_loss = sum(aux_losses)
+            moe_loss_dict['moe_aux_loss'] = moe_loss.item()
+            moe_loss_dict['num_moe_modules'] = len(aux_losses)
+
+    return moe_loss, moe_loss_dict
+
+
 def train_one_epoch(self_lr_scheduler, lr_scheduler, model: torch.nn.Module, criterion: torch.nn.Module,
                     data_loader: Iterable, optimizer: torch.optim.Optimizer,
                     device: torch.device, epoch: int, max_norm: float = 0, **kwargs):
@@ -38,6 +78,9 @@ def train_one_epoch(self_lr_scheduler, lr_scheduler, model: torch.nn.Module, cri
     lr_warmup_scheduler :Warmup = kwargs.get('lr_warmup_scheduler', None)
 
     cur_iters = epoch * len(data_loader)
+
+    # Get MoE loss weight from config (default: 0.01)
+    moe_loss_weight = kwargs.get('moe_loss_weight', 0.01)
 
     for i, (samples, targets) in enumerate(metric_logger.log_every(data_loader, print_freq, header)):
         samples = samples.to(device)
@@ -65,6 +108,14 @@ def train_one_epoch(self_lr_scheduler, lr_scheduler, model: torch.nn.Module, cri
                 loss_dict = criterion(outputs, targets, **metas)
 
             loss = sum(loss_dict.values())
+
+            # A zero weight disables both auxiliary loss collection and logging.
+            if moe_loss_weight != 0:
+                moe_aux_loss, moe_loss_dict = collect_moe_auxiliary_losses(model)
+                if moe_aux_loss.requires_grad:
+                    loss = loss + moe_loss_weight * moe_aux_loss
+                    loss_dict['moe_aux_loss'] = moe_aux_loss
+
             scaler.scale(loss).backward()
 
             if max_norm > 0:
@@ -80,6 +131,14 @@ def train_one_epoch(self_lr_scheduler, lr_scheduler, model: torch.nn.Module, cri
             loss_dict = criterion(outputs, targets, **metas)
 
             loss : torch.Tensor = sum(loss_dict.values())
+
+            # A zero weight disables both auxiliary loss collection and logging.
+            if moe_loss_weight != 0:
+                moe_aux_loss, moe_loss_dict = collect_moe_auxiliary_losses(model)
+                if moe_aux_loss.requires_grad:
+                    loss = loss + moe_loss_weight * moe_aux_loss
+                    loss_dict['moe_aux_loss'] = moe_aux_loss
+
             optimizer.zero_grad()
             loss.backward()
 

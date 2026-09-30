@@ -1,5 +1,5 @@
 # Ignored Files
-outputs/
+# Experiment text logs and launch scripts are tracked.
 ckpts/
 testenv/
 backup
@@ -142,3 +142,10 @@ dmypy.json
 *.zip
 *.html
 .DS_Store
+
+# Local-only metadata and restored Release assets
+.agents/
+.codex/
+datasets/
+uavdt*.json
+events.out.tfevents.*

@@ -11,8 +11,8 @@ train_dataloader:
   type: DataLoader
   dataset: 
     type: CocoDetection
-    img_folder: /mnt/e/Experiment/OpenDataLab___UAVDT/raw/UAV-benchmark-M
-    ann_file: /mnt/e/Experiment/DEIMv2-main/uavdt_realtrain.json
+    img_folder: E:\Experiment\OpenDataLab___UAVDT/raw/UAV-benchmark-M
+    ann_file: E:\Experiment\huya-deimv2\deimv2\uavdt_realtrain.json
     return_masks: False
     transforms:
       type: Compose
@@ -29,8 +29,8 @@ val_dataloader:
     type: CocoDetection
     # img_folder: /mnt/e/Experiment/OpenDataLab___UAVDT/raw/UAV-benchmark-M
     # ann_file: /mnt/e/Experiment/DEIMv2-main/uavdt_val.json
-    img_folder: /mnt/e/Experiment/OpenDataLab___UAVDT/raw/UAV-benchmark-M
-    ann_file: /mnt/e/Experiment/DEIMv2-main/uavdt_test.json
+    img_folder: E:\Experiment\OpenDataLab___UAVDT/raw/UAV-benchmark-M
+    ann_file: E:\Experiment\huya-deimv2\deimv2\uavdt_test.json
     return_masks: False
     transforms:
       type: Compose
@@ -45,8 +45,8 @@ test_dataloader:
   type: DataLoader
   dataset: 
     type: CocoDetection
-    img_folder: /mnt/e/Experiment/OpenDataLab___UAVDT/raw/UAV-benchmark-M
-    ann_file: /mnt/e/Experiment/DEIMv2-main/uavdt_test.json
+    img_folder: E:\Experiment\OpenDataLab___UAVDT/raw/UAV-benchmark-M
+    ann_file: E:\Experiment\huya-deimv2\deimv2\uavdt_test.json
     return_masks: False
     transforms:
       type: Compose

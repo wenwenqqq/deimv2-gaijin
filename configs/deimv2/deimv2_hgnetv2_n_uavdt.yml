@@ -90,6 +90,19 @@ train_dataloader:
     expand_ratios: [0.1, 0.25]
 
 DEIMCriterion:
+  weight_dict: {loss_mal: 1, loss_bbox: 5, loss_giou: 2, loss_fgl: 0.15, loss_ddf: 1.5,
+                loss_paq_vfl: 1, loss_paq_bbox: 5, loss_paq_giou: 2}
+  # PaQ-DETR quality-aware one-to-many auxiliary branch (ablation toggle).
+  # Off by default in code; set paq_enable: True to turn on. Final decoder layer
+  # always stays one-to-one; this adds an adaptive one-to-many loss at the
+  # intermediate (aux) decoder layers only.
+  paq_enable: False
+  paq_gamma: 0.4          # s = IoU - gamma * cls_conf   (PaQ Eq. 6)
+  paq_k: 4                # nominal top-k for adaptive positive count (Eq. 7)
+  paq_l: 1                # min positives per GT
+  paq_iou_thr: 0.0        # only consider queries with IoU > thr as candidates
+  paq_layers: ~           # None = all intermediate aux layers; or list e.g. [0, 1]
+  paq_start_epoch: 4      # align with mosaic/mixup start
   matcher:
     # new matcher
     change_matcher: True

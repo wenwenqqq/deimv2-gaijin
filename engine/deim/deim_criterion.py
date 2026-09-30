@@ -39,6 +39,14 @@ class DEIMCriterion(nn.Module):
         share_matched_indices=False,
         mal_alpha=None,
         use_uni_set=True,
+        # ---- PaQ-DETR quality-aware one-to-many auxiliary branch (ablation toggle) ----
+        paq_enable=False,
+        paq_gamma=0.4,
+        paq_k=4,
+        paq_l=1,
+        paq_iou_thr=0.0,
+        paq_layers=None,
+        paq_start_epoch=0,
         ):
         """Create the criterion.
         Parameters:
@@ -64,6 +72,14 @@ class DEIMCriterion(nn.Module):
         self.num_pos, self.num_neg = None, None
         self.mal_alpha = mal_alpha
         self.use_uni_set = use_uni_set
+        # PaQ-DETR quality-aware one-to-many auxiliary branch
+        self.paq_enable = paq_enable
+        self.paq_gamma = paq_gamma
+        self.paq_k = paq_k
+        self.paq_l = paq_l
+        self.paq_iou_thr = paq_iou_thr
+        self.paq_layers = paq_layers
+        self.paq_start_epoch = paq_start_epoch
 
     def loss_labels_focal(self, outputs, targets, indices, num_boxes):
         assert 'pred_logits' in outputs
@@ -333,6 +349,27 @@ class DEIMCriterion(nn.Module):
                     l_dict = {k: l_dict[k] * self.weight_dict[k] for k in l_dict if k in self.weight_dict}
                     l_dict = {k + f'_aux_{i}': v for k, v in l_dict.items()}
                     losses.update(l_dict)
+
+                # ---- PaQ-DETR quality-aware one-to-many auxiliary branch ----
+                # Applied at intermediate decoder layers only (aux_outputs); the
+                # final layer stays one-to-one (handled by the main loss above).
+                # Toggle with paq_enable for ablation; no-op when disabled.
+                if (self.paq_enable and epoch >= self.paq_start_epoch
+                        and (self.paq_layers is None or i in self.paq_layers)):
+                    paq_indices = self.matcher.quality_aware_one2many(
+                        aux_outputs, targets,
+                        gamma=self.paq_gamma, k=self.paq_k,
+                        l=self.paq_l, iou_thr=self.paq_iou_thr)['indices']
+                    paq_raw = {}
+                    paq_raw['loss_paq_vfl'] = self.loss_labels_vfl(
+                        aux_outputs, targets, paq_indices, num_boxes)['loss_vfl']
+                    _paq_box = self.loss_boxes(aux_outputs, targets, paq_indices, num_boxes)
+                    paq_raw['loss_paq_bbox'] = _paq_box['loss_bbox']
+                    paq_raw['loss_paq_giou'] = _paq_box['loss_giou']
+                    paq_losses = {pk: paq_raw[pk] * self.weight_dict[pk]
+                                  for pk in paq_raw if pk in self.weight_dict}
+                    paq_losses = {pk + f'_aux_{i}': v for pk, v in paq_losses.items()}
+                    losses.update(paq_losses)
 
         # In case of auxiliary traditional head output at first decoder layer. just for dfine
         if 'pre_outputs' in outputs:
